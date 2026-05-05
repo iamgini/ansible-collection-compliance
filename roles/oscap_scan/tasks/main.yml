@@ -1,0 +1,22 @@
+---
+# Main task file for oscap_scan role
+# Orchestrates the complete scan workflow
+
+- name: Install OpenSCAP on target if needed
+  ansible.builtin.include_tasks: install.yml
+  when: oscap_scan_install | bool
+
+- name: Prepare directories for scan
+  ansible.builtin.include_tasks: prepare.yml
+
+- name: Run OpenSCAP compliance scan
+  ansible.builtin.include_tasks: scan.yml
+
+- name: Fetch scan results to controller
+  ansible.builtin.include_tasks: fetch.yml
+
+- name: Push reports to report server
+  ansible.builtin.include_tasks: push_report.yml
+
+- name: Cleanup temporary files
+  ansible.builtin.include_tasks: cleanup.yml

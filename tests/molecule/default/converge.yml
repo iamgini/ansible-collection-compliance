@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  become: true
+  collections:
+    - community.scap_hardening
+
+  tasks:
+    - name: Test oscap_scan role
+      ansible.builtin.include_role:
+        name: community.scap_hardening.oscap_scan

@@ -1,0 +1,21 @@
+---
+# Generate remediation playbook on report server
+
+- name: Generate Ansible remediation playbook from result.xml
+  ansible.builtin.shell:
+    cmd: >
+      {{ oscap_binary }} xccdf generate fix
+      --fix-type {{ oscap_generate_fix_type }}
+      --result-id ""
+      {{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/result.xml
+      > {{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ remediation_raw_filename }}
+    creates: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ remediation_raw_filename }}"
+  delegate_to: "{{ report_server_host }}"
+  register: generate_fix_result
+
+- name: Post-process generated playbook
+  ansible.builtin.include_tasks: post_process.yml
+  vars:
+    raw_playbook_path: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ remediation_raw_filename }}"
+    final_playbook_path: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ remediation_final_filename }}"
+    process_delegate: "{{ report_server_host }}"

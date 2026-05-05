@@ -1,0 +1,13 @@
+---
+# STIG (Security Technical Implementation Guide) Linux hosts
+# STIG provides DoD-mandated security configuration standards
+
+cis_profile: "xccdf_org.ssgproject.content_profile_stig"
+ssg_datastream: "/usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml"
+target_platform: "linux"
+linux_family: "rhel"
+
+# Group-level exceptions for all STIG hosts (empty by default)
+# Add rules here that should be skipped for ALL hosts in this group
+compliance_skip_rules: []
+compliance_exception_reasons: {}

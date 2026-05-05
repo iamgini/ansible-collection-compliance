@@ -1,0 +1,13 @@
+---
+# CIS Level 2 Linux hosts
+# Level 2 provides enhanced security for high-security environments
+
+cis_profile: "xccdf_org.ssgproject.content_profile_cis_level2_server"
+ssg_datastream: "/usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml"
+target_platform: "linux"
+linux_family: "rhel"
+
+# Group-level exceptions for all CIS L2 hosts (empty by default)
+# Add rules here that should be skipped for ALL hosts in this group
+compliance_skip_rules: []
+compliance_exception_reasons: {}

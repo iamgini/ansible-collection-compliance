@@ -1,0 +1,44 @@
+---
+# Push scan results to report server and create metadata
+
+- name: Create customer directory on report server
+  ansible.builtin.file:
+    path: "{{ report_server_base_dir }}/{{ customer_id }}"
+    state: directory
+    mode: '0755'
+  delegate_to: "{{ report_server_host }}"
+
+- name: Create host directory on report server
+  ansible.builtin.file:
+    path: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}"
+    state: directory
+    mode: '0755'
+  delegate_to: "{{ report_server_host }}"
+
+- name: Create scan directory on report server
+  ansible.builtin.file:
+    path: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}"
+    state: directory
+    mode: '0755'
+  delegate_to: "{{ report_server_host }}"
+
+- name: Copy result.xml to report server
+  ansible.builtin.copy:
+    src: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}/result.xml"
+    dest: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/result.xml"
+    mode: '0644'
+  delegate_to: "{{ report_server_host }}"
+
+- name: Copy report.html to report server
+  ansible.builtin.copy:
+    src: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}/report.html"
+    dest: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/report.html"
+    mode: '0644'
+  delegate_to: "{{ report_server_host }}"
+
+- name: Create scan metadata.json on report server
+  ansible.builtin.template:
+    src: metadata.json.j2
+    dest: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/metadata.json"
+    mode: '0644'
+  delegate_to: "{{ report_server_host }}"

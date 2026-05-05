@@ -1,0 +1,16 @@
+---
+# Main task file for generate_fix role
+# Supports two generation modes: report_server and execution_environment
+
+- name: Generate fix using report server mode
+  ansible.builtin.include_tasks: mode_report_server.yml
+  when: generate_fix_mode == "report_server"
+
+- name: Generate fix using execution environment mode
+  ansible.builtin.include_tasks: mode_ee.yml
+  when: generate_fix_mode == "execution_environment"
+
+- name: Validate generate_fix_mode value
+  ansible.builtin.fail:
+    msg: "Invalid generate_fix_mode: {{ generate_fix_mode }}. Must be 'report_server' or 'execution_environment'"
+  when: generate_fix_mode not in ['report_server', 'execution_environment']

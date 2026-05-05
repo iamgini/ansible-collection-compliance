@@ -1,0 +1,7 @@
+---
+# Cleanup temporary files from target
+
+- name: Remove temporary results directory from target
+  ansible.builtin.file:
+    path: "{{ oscap_results_dir }}"
+    state: absent

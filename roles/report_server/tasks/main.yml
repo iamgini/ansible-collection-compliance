@@ -1,0 +1,43 @@
+---
+# Main task file for report_server role
+# Sets up nginx-based static file server for compliance reports
+
+- name: Install nginx web server
+  ansible.builtin.package:
+    name: "{{ nginx_package_name }}"
+    state: present
+
+- name: Create base reports directory
+  ansible.builtin.file:
+    path: "{{ report_server_base_dir }}"
+    state: directory
+    owner: "{{ report_server_user }}"
+    group: "{{ report_server_group }}"
+    mode: '0755'
+
+- name: Deploy nginx virtual host configuration
+  ansible.builtin.template:
+    src: nginx_reports.conf.j2
+    dest: "{{ nginx_conf_dir }}/{{ nginx_vhost_filename }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart nginx
+
+- name: Enable and start nginx service
+  ansible.builtin.service:
+    name: "{{ nginx_service_name }}"
+    state: started
+    enabled: true
+
+- name: Open firewall port for HTTP
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    state: enabled
+    immediate: true
+  when:
+    - firewall_enable | bool
+    - ansible_facts.services['firewalld.service'] is defined
+    - ansible_facts.services['firewalld.service'].state == 'running'
+  ignore_errors: true

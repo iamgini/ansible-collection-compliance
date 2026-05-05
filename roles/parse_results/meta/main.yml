@@ -1,0 +1,33 @@
+---
+galaxy_info:
+  role_name: parse_results
+  author: Gineesh Madapparambath
+  description: Parse OpenSCAP ARF XML results and extract failed rules to JSON
+  company: Community
+  license: Apache-2.0
+  min_ansible_version: "2.14"
+  platforms:
+    - name: EL
+      versions:
+        - 8
+        - 9
+    - name: Fedora
+      versions:
+        - 38
+        - 39
+    - name: Ubuntu
+      versions:
+        - 22.04
+        - 24.04
+    - name: Debian
+      versions:
+        - 11
+        - 12
+  galaxy_tags:
+    - security
+    - compliance
+    - openscap
+    - parsing
+    - reporting
+
+dependencies: []

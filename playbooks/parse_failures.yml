@@ -1,0 +1,10 @@
+---
+- name: Parse OpenSCAP results and extract failed rules
+  hosts: "{{ target_hosts | default('all') }}"
+  gather_facts: true
+  become: false
+  collections:
+    - community.scap_hardening
+
+  roles:
+    - role: community.scap_hardening.parse_results

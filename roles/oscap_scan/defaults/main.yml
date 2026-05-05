@@ -1,0 +1,37 @@
+---
+# Default variables for oscap_scan role
+# Override in group_vars or host_vars as needed
+
+# Whether to install OpenSCAP packages on target
+oscap_scan_install: true
+
+# OpenSCAP packages for Linux platforms
+oscap_packages_rhel:
+  - openscap-scanner
+  - scap-security-guide
+
+oscap_packages_debian:
+  - libopenscap8
+  - ssg-debian
+  - ssg-debderived
+
+# Conditional package list based on linux_family
+oscap_packages: "{{ oscap_packages_rhel if linux_family == 'rhel' else oscap_packages_debian }}"
+
+# Directories
+oscap_results_dir: "/tmp/oscap_results"
+oscap_fetch_dir: "/tmp/oscap_fetched"
+
+# Binary path
+oscap_binary: "/usr/bin/oscap"
+
+# Timeout for scan command (seconds)
+oscap_scan_timeout: 600
+
+# Report server settings (from group_vars/all.yml)
+# These are referenced here for documentation
+# report_server_host: defined in group_vars
+# report_server_base_dir: defined in group_vars
+# customer_id: defined in group_vars or host_vars
+# cis_profile: defined in group_vars
+# ssg_datastream: defined in group_vars

@@ -1,0 +1,13 @@
+---
+# CIS Level 1 Linux hosts
+# Level 1 provides baseline security without significant impact on usability
+
+cis_profile: "xccdf_org.ssgproject.content_profile_cis_level1_server"
+ssg_datastream: "/usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml"
+target_platform: "linux"
+linux_family: "rhel"
+
+# Group-level exceptions for all CIS L1 hosts (empty by default)
+# Add rules here that should be skipped for ALL hosts in this group
+compliance_skip_rules: []
+compliance_exception_reasons: {}

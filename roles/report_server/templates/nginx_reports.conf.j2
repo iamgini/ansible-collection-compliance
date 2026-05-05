@@ -1,0 +1,36 @@
+server {
+    listen 80;
+    server_name _;
+
+    root {{ report_server_base_dir }};
+    index index.html report.html;
+
+    location / {
+        autoindex on;
+        autoindex_exact_size off;
+        autoindex_localtime on;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    # Serve HTML reports with proper MIME type
+    location ~ \.html$ {
+        add_header Content-Type text/html;
+    }
+
+    # Serve XML files with proper MIME type
+    location ~ \.xml$ {
+        add_header Content-Type application/xml;
+    }
+
+    # Serve JSON files with proper MIME type
+    location ~ \.json$ {
+        add_header Content-Type application/json;
+    }
+
+    # Access and error logs
+    access_log /var/log/nginx/reports_access.log;
+    error_log /var/log/nginx/reports_error.log;
+}

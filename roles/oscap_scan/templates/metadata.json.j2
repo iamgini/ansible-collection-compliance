@@ -1,0 +1,19 @@
+{
+  "customer_id": "{{ customer_id }}",
+  "hostname": "{{ inventory_hostname }}",
+  "profile": "{{ cis_profile | regex_replace('.*profile_', '') }}",
+  "profile_full": "{{ cis_profile }}",
+  "scan_date": "{{ scan_date }}",
+  "scan_timestamp": "{{ ansible_date_time.iso8601 }}",
+  "datastream": "{{ ssg_datastream }}",
+  "report_url": "{{ report_server_url }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/report.html",
+  "ansible_facts": {
+    "os_family": "{{ ansible_os_family }}",
+    "distribution": "{{ ansible_distribution }}",
+    "distribution_version": "{{ ansible_distribution_version }}",
+    "kernel": "{{ ansible_kernel }}"
+  },
+  "scan_status": "completed",
+  "scan_return_code": {{ oscap_scan_result.rc }},
+  "notes": "Detailed compliance scores will be populated by parse_results role"
+}

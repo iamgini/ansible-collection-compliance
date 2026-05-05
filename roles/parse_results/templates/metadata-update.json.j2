@@ -1,0 +1,24 @@
+{
+  "customer_id": "{{ customer_id }}",
+  "hostname": "{{ inventory_hostname }}",
+  "profile": "{{ cis_profile | regex_replace('.*profile_', '') }}",
+  "profile_full": "{{ cis_profile }}",
+  "scan_date": "{{ scan_date }}",
+  "scan_timestamp": "{{ ansible_date_time.iso8601 }}",
+  "datastream": "{{ ssg_datastream }}",
+  "report_url": "{{ report_server_url }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/report.html",
+  "ansible_facts": {
+    "os_family": "{{ ansible_os_family }}",
+    "distribution": "{{ ansible_distribution }}",
+    "distribution_version": "{{ ansible_distribution_version }}",
+    "kernel": "{{ ansible_kernel }}"
+  },
+  "scan_status": "completed",
+  "total_rules": {{ total_rules_count }},
+  "pass_count": {{ passed_rules_count }},
+  "fail_count": {{ failed_rules_count }},
+  "compliance_score_pct": {{ compliance_score }},
+  "critical_failures": {{ failed_rules_list | selectattr('@severity', 'equalto', 'high') | list | length }},
+  "high_failures": {{ failed_rules_list | selectattr('@severity', 'equalto', 'medium') | list | length }},
+  "parsed_at": "{{ ansible_date_time.iso8601 }}"
+}

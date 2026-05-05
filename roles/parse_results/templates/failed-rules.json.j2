@@ -1,0 +1,21 @@
+{
+  "scan_date": "{{ scan_date }}",
+  "hostname": "{{ inventory_hostname }}",
+  "profile": "{{ cis_profile | regex_replace('.*profile_', '') }}",
+  "profile_full": "{{ cis_profile }}",
+  "total_rules": {{ total_rules_count }},
+  "failed_count": {{ failed_rules_count }},
+  "passed_count": {{ passed_rules_count }},
+  "compliance_score_pct": {{ compliance_score }},
+  "failed_rules": [
+{% for rule in failed_rules_list %}
+    {
+      "rule_id": "{{ rule['@idref'] }}",
+      "result": "{{ rule['xccdf:result'] }}",
+      "severity": "{{ rule['@severity'] | default('unknown') }}",
+      "weight": "{{ rule['@weight'] | default('1.0') }}"
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ]
+}

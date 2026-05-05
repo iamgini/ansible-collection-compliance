@@ -1,0 +1,22 @@
+---
+profile: production
+
+exclude_paths:
+  - generated/
+  - .cache/
+  - collections/
+  - .git/
+
+warn_list:
+  - experimental
+
+skip_list:
+  - yaml[line-length]   # Generated oscap playbooks may have long lines
+  - name[casing]        # Some SCAP rule names use mixed case
+
+enable_list:
+  - fqcn-builtins       # Enforce FQCN for builtin modules
+  - no-handler          # Handlers should not be used for compliance tasks
+
+use_default_rules: true
+parseable: true

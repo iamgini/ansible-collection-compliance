@@ -1,0 +1,11 @@
+---
+# Default variables for exception_handler role
+
+# These are typically defined in group_vars or host_vars
+# Listed here for documentation purposes
+group_compliance_skip_rules: []
+compliance_skip_rules: []
+compliance_exception_reasons: {}
+
+# Output file
+exception_registry_filename: "exception_registry.json"
