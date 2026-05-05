@@ -1,4 +1,4 @@
-# ansible-scap-hardening
+# Ansible for Compliance Hardening
 
 A community Ansible collection for automated security compliance scanning and remediation using OpenSCAP and ComplianceAsCode.
 
