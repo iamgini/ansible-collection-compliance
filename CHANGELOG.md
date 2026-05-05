@@ -19,4 +19,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - TBD
 
 ### Added
-- First pre-release of community.scap_hardening collection
+- First pre-release of iamgini.compliance collection

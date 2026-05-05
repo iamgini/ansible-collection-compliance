@@ -4,7 +4,7 @@
   gather_facts: true
   become: false
   collections:
-    - community.scap_hardening
+    - iamgini.compliance
 
   roles:
-    - role: community.scap_hardening.generate_fix
+    - role: iamgini.compliance.generate_fix

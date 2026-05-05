@@ -4,7 +4,7 @@
   gather_facts: true
   become: true
   collections:
-    - community.scap_hardening
+    - iamgini.compliance
 
   pre_tasks:
     - name: Validate required variables are defined
@@ -17,4 +17,4 @@
         fail_msg: "Required variables missing - check group_vars/all.yml and host_vars"
 
   roles:
-    - role: community.scap_hardening.oscap_scan
+    - role: iamgini.compliance.oscap_scan

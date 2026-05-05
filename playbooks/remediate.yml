@@ -4,12 +4,12 @@
   gather_facts: true
   become: true
   collections:
-    - community.scap_hardening
+    - iamgini.compliance
 
   pre_tasks:
     - name: Build effective exception list from group and host vars
       ansible.builtin.include_role:
-        name: community.scap_hardening.exception_handler
+        name: iamgini.compliance.exception_handler
 
   tasks:
     - name: Display exception information

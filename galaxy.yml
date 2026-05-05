@@ -1,6 +1,6 @@
 ---
-namespace: community
-name: scap_hardening
+namespace: iamgini
+name: compliance
 version: 0.1.0
 readme: README.md
 authors:
@@ -19,7 +19,7 @@ tags:
   - cis
   - stig
   - scap
-repository: https://github.com/your-org/ansible-scap-hardening
-documentation: https://github.com/your-org/ansible-scap-hardening/wiki
-homepage: https://github.com/your-org/ansible-scap-hardening
-issues: https://github.com/your-org/ansible-scap-hardening/issues
+repository: https://github.com/ginigangadharan/ansible-collection-compliance
+documentation: https://github.com/ginigangadharan/ansible-collection-compliance/wiki
+homepage: https://github.com/ginigangadharan/ansible-collection-compliance
+issues: https://github.com/ginigangadharan/ansible-collection-compliance/issues

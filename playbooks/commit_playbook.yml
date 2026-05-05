@@ -4,7 +4,7 @@
   gather_facts: false
   become: false
   collections:
-    - community.scap_hardening
+    - iamgini.compliance
 
   tasks:
     - name: Configure git identity on report server

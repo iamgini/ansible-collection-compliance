@@ -7,7 +7,7 @@ A community Ansible collection for automated security compliance scanning and re
 
 ## Overview
 
-`community.scap_hardening` is a platform-agnostic, open-source compliance automation framework that enables:
+`iamgini.compliance` is a platform-agnostic, open-source compliance automation framework that enables:
 
 - **Automated Security Scanning**: Run OpenSCAP compliance scans across your infrastructure
 - **Intelligent Remediation**: Generate and apply targeted remediation playbooks
@@ -59,7 +59,7 @@ The framework implements a 4-phase workflow:
 ### 1. Install the Collection
 
 ```bash
-ansible-galaxy collection install community.scap_hardening
+ansible-galaxy collection install iamgini.compliance
 ```
 
 ### 2. Configure Inventory
@@ -93,7 +93,7 @@ Browse to: `http://report-server.internal/reports/<customer_id>/<hostname>/<date
 ## Collection Structure
 
 ```
-community.scap_hardening/
+iamgini.compliance/
 ├── roles/
 │   ├── oscap_scan/          # OpenSCAP scanning on targets
 │   ├── report_server/       # nginx-based report server setup
@@ -302,9 +302,9 @@ Apache License 2.0 - See [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-org/ansible-scap-hardening/issues)
-- **Documentation**: [Wiki](https://github.com/your-org/ansible-scap-hardening/wiki)
-- **Community**: [Discussions](https://github.com/your-org/ansible-scap-hardening/discussions)
+- **Issues**: [GitHub Issues](https://github.com/ginigangadharan/ansible-collection-compliance/issues)
+- **Documentation**: [Wiki](https://github.com/ginigangadharan/ansible-collection-compliance/wiki)
+- **Community**: [Discussions](https://github.com/ginigangadharan/ansible-collection-compliance/discussions)
 
 ## Acknowledgments
 

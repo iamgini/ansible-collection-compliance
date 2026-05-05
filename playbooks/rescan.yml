@@ -4,13 +4,13 @@
   gather_facts: true
   become: true
   collections:
-    - community.scap_hardening
+    - iamgini.compliance
 
   vars:
     scan_dir: "{{ scan_date }}-post-{{ cis_profile | regex_replace('.*profile_', '') }}"
 
   roles:
-    - role: community.scap_hardening.oscap_scan
+    - role: iamgini.compliance.oscap_scan
 
   post_tasks:
     - name: Display compliance improvement summary
