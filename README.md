@@ -205,6 +205,151 @@ compliance_exception_reasons:
 3. Exception registry JSON is written to report server
 4. Remediation playbook uses skip tags based on effective exceptions
 
+### Managing Exceptions by Server Type
+
+For server types with common exception requirements (web servers, database servers, etc.), use group-based exceptions to avoid duplication.
+
+#### Example: nginx Web Servers
+
+**Step 1: Create an inventory group**
+
+In `inventory/hosts.yml`:
+
+```yaml
+all:
+  children:
+    nginx_servers:
+      hosts:
+        nginx-prod-01.example.com:
+        nginx-prod-02.example.com:
+        nginx-staging-01.example.com:
+```
+
+**Step 2: Create group-level exceptions**
+
+Create `inventory/group_vars/nginx_servers.yml`:
+
+```yaml
+---
+# Exceptions common to ALL nginx servers
+compliance_skip_rules:
+  - "xccdf_org.ssgproject.content_rule_service_httpd_disabled"
+  - "xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_ip_forward"
+
+compliance_exception_reasons:
+  xccdf_org.ssgproject.content_rule_service_httpd_disabled:
+    reason: "nginx web server required for production traffic"
+    business_impact: "Critical - serves customer applications"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-01-15"
+    review_date: "2027-01-15"
+    ticket: "SEC-1234"
+    
+  xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_ip_forward:
+    reason: "Required for nginx reverse proxy to backend servers"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-01-15"
+    review_date: "2027-01-15"
+    compensating_controls:
+      - "Firewall rules restrict forwarding to internal networks only"
+```
+
+**Step 3: Add host-specific exceptions (if needed)**
+
+For servers with unique requirements, create `inventory/host_vars/<hostname>.yml`:
+
+```yaml
+---
+# nginx-prod-01.example.com has additional exceptions
+compliance_skip_rules:
+  - "xccdf_org.ssgproject.content_rule_service_nfs_disabled"
+
+compliance_exception_reasons:
+  xccdf_org.ssgproject.content_rule_service_nfs_disabled:
+    reason: "NFS required for shared static assets across cluster"
+    business_impact: "Critical - content delivery"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-03-01"
+    review_date: "2026-09-01"
+    ticket: "SEC-1567"
+    compensating_controls:
+      - "NFSv4 with Kerberos authentication"
+      - "Read-only mount"
+      - "Dedicated storage VLAN"
+```
+
+#### Finding Rule IDs for Exceptions
+
+**Method 1: From HTML Report**
+
+1. Run a scan: `ansible-playbook playbooks/scan.yml`
+2. Open the HTML report at: `http://report-server.internal/reports/<customer>/<host>/<date>/report.html`
+3. Find the failing rule (e.g., "Disable SSH Root Login")
+4. Copy the full Rule ID from the report (e.g., `xccdf_org.ssgproject.content_rule_sshd_disable_root_login`)
+
+**Method 2: From ARF XML**
+
+```bash
+# List all failed rules from most recent scan
+oscap info --fetch-remote-resources \
+  /var/reports/<customer>/<host>/<date>/results.xml | \
+  grep "xccdf_org.ssgproject.content_rule"
+```
+
+**Method 3: From SSG Content**
+
+```bash
+# Search available rules in datastream
+oscap info /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml | \
+  grep -i "nginx\|httpd\|web"
+```
+
+#### Exception Best Practices
+
+1. **Document Business Impact**: Always explain why the exception is needed and what breaks without it
+2. **Track Approvals**: Include approver email and approval date for audit trails
+3. **Set Review Dates**: Schedule regular reviews (typically 6-12 months)
+4. **Add Compensating Controls**: List alternative security measures implemented
+5. **Reference Tickets**: Link to change management or security review tickets
+6. **Use Group Vars**: Consolidate common exceptions at the group level
+7. **Version Control**: Commit exception files to Git with descriptive messages
+
+#### Exception File Locations
+
+```
+inventory/
+├── group_vars/
+│   ├── all.yml                    # Global defaults (minimal exceptions)
+│   ├── nginx_servers.yml          # Exceptions for all nginx servers
+│   ├── database_servers.yml       # Exceptions for all database servers
+│   └── pci_compliance_scope.yml   # Exceptions for PCI-DSS systems
+└── host_vars/
+    ├── nginx-prod-01.example.com.yml   # Host-specific exceptions
+    └── db-prod-01.example.com.yml      # Host-specific exceptions
+```
+
+#### Example Exception Scenarios by Server Type
+
+**Web Servers (nginx, Apache)**
+- HTTP/HTTPS services enabled
+- Reverse proxy network settings
+- Custom kernel tuning for high connections
+- SELinux booleans for network connectivity
+
+**Database Servers (PostgreSQL, MySQL)**
+- Database service enabled
+- Increased shared memory limits
+- Custom file descriptor limits
+- Database-specific port access
+
+**Container Hosts (Docker, Podman)**
+- IP forwarding enabled
+- Bridge networking enabled
+- Storage driver requirements
+- cgroup configurations
+
+**See Real Examples**: Check `inventory/group_vars/nginx_servers.yml` and `inventory/host_vars/nginx-prod-01.example.com.yml` for complete nginx exception templates with detailed justifications.
+
 ## Ansible Automation Platform Integration
 
 ### Workflow Template Setup

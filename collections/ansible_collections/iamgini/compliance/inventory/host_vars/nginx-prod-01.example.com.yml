@@ -1,0 +1,106 @@
+---
+# Host-specific exceptions for nginx-prod-01.example.com
+# This is the primary production nginx server serving api.example.com
+# Inherits group-level exceptions from nginx_servers group
+
+customer_id: "web-infrastructure"
+
+# Host-specific exception rules (in addition to group-level exceptions)
+# These apply ONLY to this specific nginx instance
+compliance_skip_rules:
+  # This specific server needs NFS for shared static assets
+  - "xccdf_org.ssgproject.content_rule_service_nfs_disabled"
+
+  # SSL/TLS certificate management requires specific package
+  - "xccdf_org.ssgproject.content_rule_package_aide_installed"
+
+  # Custom firewall rules for API gateway
+  - "xccdf_org.ssgproject.content_rule_firewalld_sshd_port_enabled"
+
+  # Host monitoring agent requires specific permissions
+  - "xccdf_org.ssgproject.content_rule_audit_rules_privileged_commands"
+
+# Justification for host-specific exceptions
+compliance_exception_reasons:
+  xccdf_org.ssgproject.content_rule_service_nfs_disabled:
+    reason: "NFS mount required for shared static assets (images, CSS, JS) across nginx cluster"
+    business_impact: "Critical - shared content delivery for all web applications"
+    approved_by: "security-team@example.com, cto@example.com"
+    approved_date: "2026-03-01"
+    review_date: "2026-09-01"
+    ticket: "SEC-1567"
+    compensating_controls:
+      - "NFS traffic restricted to dedicated storage VLAN (VLAN 100)"
+      - "NFSv4 with Kerberos authentication enabled"
+      - "Read-only mount - no write access from web servers"
+      - "NFS server IP whitelisting in firewall rules"
+    alternative_considered: "Object storage (S3) - planned migration by Q3 2026"
+
+  xccdf_org.ssgproject.content_rule_package_aide_installed:
+    reason: "AIDE conflicts with Let's Encrypt certbot auto-renewal process"
+    business_impact: "High - automated SSL certificate management required for uptime"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-02-15"
+    review_date: "2026-08-15"
+    ticket: "SEC-1499"
+    compensating_controls:
+      - "OSSEC file integrity monitoring configured as AIDE alternative"
+      - "Certificate directory monitored separately via Vault"
+      - "Automated alerts on certificate changes"
+
+  xccdf_org.ssgproject.content_rule_firewalld_sshd_port_enabled:
+    reason: "SSH access required on custom port 2222 for deployment automation"
+    business_impact: "High - required for CI/CD pipeline deployments"
+    approved_by: "security-team@example.com, devops-lead@example.com"
+    approved_date: "2026-01-20"
+    review_date: "2027-01-20"
+    ticket: "SEC-1401"
+    compensating_controls:
+      - "SSH access restricted to CI/CD runner IP addresses only"
+      - "Key-based authentication only - password auth disabled"
+      - "fail2ban active with aggressive blocking"
+      - "SSH sessions logged to centralized SIEM"
+
+  xccdf_org.ssgproject.content_rule_audit_rules_privileged_commands:
+    reason: "Datadog monitoring agent requires specific privileged command execution not covered by standard audit rules"
+    business_impact: "Medium - required for production monitoring and alerting"
+    approved_by: "platform-team@example.com"
+    approved_date: "2026-02-10"
+    review_date: "2026-08-10"
+    ticket: "INFRA-789"
+    compensating_controls:
+      - "Custom audit rules defined in /etc/audit/rules.d/datadog.rules"
+      - "Agent runs with minimal required capabilities"
+
+# Host-specific variable overrides
+compliance_var_overrides:
+  # This server handles sensitive API traffic - stricter password requirements
+  var_password_pam_minlen: "16"
+  var_password_pam_minclass: "4"
+
+  # Shorter max password age due to PCI-DSS requirements
+  var_accounts_maximum_age_login_defs: "60"
+
+  # Custom SSH idle timeout for this production system
+  var_sshd_idle_timeout_value: "300"
+
+# Server metadata for reporting and documentation
+server_role: "nginx_api_gateway"
+compliance_profile_type: "pci_dss_web_server"
+business_unit: "Digital Services"
+business_criticality: "tier_1"
+deployment_environment: "production"
+primary_application: "api.example.com"
+backup_schedule: "hourly"
+maintenance_window: "Sunday 02:00-04:00 UTC"
+
+# Contact information for exceptions and reviews
+technical_owner: "webops-team@example.com"
+security_contact: "security-team@example.com"
+emergency_contact: "oncall-webops@example.com"
+
+# Compliance framework mappings
+compliance_frameworks:
+  - "PCI-DSS v4.0"
+  - "SOC 2 Type II"
+  - "ISO 27001:2022"

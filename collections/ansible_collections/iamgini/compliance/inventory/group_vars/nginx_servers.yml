@@ -1,0 +1,88 @@
+---
+# Group-level exceptions for nginx/web servers
+# Apply to all hosts in the 'nginx_servers' inventory group
+# These exceptions reflect common security requirements for public-facing web servers
+
+customer_id: "web-infrastructure"
+
+# Rules to skip for all nginx servers in this group
+compliance_skip_rules:
+  # Web server must listen on port 80/443
+  - "xccdf_org.ssgproject.content_rule_service_httpd_disabled"
+
+  # Web server needs network connectivity
+  - "xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_ip_forward"
+
+  # Required for reverse proxy functionality
+  - "xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_all_accept_redirects"
+
+  # Web servers often need custom kernel parameters for high performance
+  - "xccdf_org.ssgproject.content_rule_sysctl_net_core_somaxconn"
+
+  # Custom SELinux booleans required for nginx operation
+  - "xccdf_org.ssgproject.content_rule_sebool_httpd_can_network_connect"
+
+# Justification and approval tracking for group-level exceptions
+compliance_exception_reasons:
+  xccdf_org.ssgproject.content_rule_service_httpd_disabled:
+    reason: "nginx web server must be enabled for production traffic serving"
+    business_impact: "Critical - serves customer-facing applications"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-01-15"
+    review_date: "2027-01-15"
+    ticket: "SEC-1234"
+
+  xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_ip_forward:
+    reason: "Required for nginx reverse proxy to backend application servers"
+    business_impact: "High - supports microservices architecture"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-01-15"
+    review_date: "2027-01-15"
+    ticket: "SEC-1234"
+    compensating_controls:
+      - "Firewall rules restrict forwarding to internal backend networks only"
+      - "Network segmentation enforced via VLANs"
+
+  xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_conf_all_accept_redirects:
+    reason: "nginx load balancer requires ICMP redirects for optimal routing"
+    business_impact: "Medium - improves network performance"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-01-15"
+    review_date: "2027-01-15"
+    ticket: "SEC-1235"
+    compensating_controls:
+      - "Network intrusion detection system monitors for redirect abuse"
+      - "Redirects only accepted from trusted gateway IPs"
+
+  xccdf_org.ssgproject.content_rule_sysctl_net_core_somaxconn:
+    reason: "Increased connection queue needed for high-traffic web server (512 -> 4096)"
+    business_impact: "High - prevents connection drops during traffic spikes"
+    approved_by: "platform-team@example.com"
+    approved_date: "2026-02-01"
+    review_date: "2027-02-01"
+    ticket: "INFRA-456"
+
+  xccdf_org.ssgproject.content_rule_sebool_httpd_can_network_connect:
+    reason: "SELinux boolean must be enabled for nginx to proxy to backend services"
+    business_impact: "Critical - required for application functionality"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-01-20"
+    review_date: "2027-01-20"
+    ticket: "SEC-1240"
+    compensating_controls:
+      - "Backend connections restricted to specific ports via SELinux policy"
+      - "Application-level authentication enforced on backend connections"
+
+# nginx-specific SSG variable overrides (if needed)
+# These are common tuning parameters for web servers
+compliance_var_overrides:
+  # Allow slightly longer idle timeouts for web connections
+  var_accounts_tmout: "900"  # 15 minutes vs default 600
+
+  # Custom umask for web content files
+  var_accounts_user_umask: "027"
+
+# Additional metadata for documentation/reporting
+server_role: "nginx_web_server"
+compliance_profile_type: "web_server_baseline"
+business_unit: "Digital Services"
