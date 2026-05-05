@@ -29,7 +29,7 @@ ansible-navigator:
     volume-mounts:
     - dest: /tmp/oscap_results
       options: Z
-      src: /home/gmadappa/ansible/ansible-scap-hardening/generated
+      src: $PWD/generated
   logging:
     append: false
     file: /tmp/ansible-navigator.log
