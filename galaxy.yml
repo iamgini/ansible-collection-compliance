@@ -19,7 +19,7 @@ tags:
   - cis
   - stig
   - scap
-repository: https://github.com/ginigangadharan/ansible-collection-compliance
-documentation: https://github.com/ginigangadharan/ansible-collection-compliance/wiki
-homepage: https://github.com/ginigangadharan/ansible-collection-compliance
-issues: https://github.com/ginigangadharan/ansible-collection-compliance/issues
+repository: https://github.com/iamgini/ansible-collection-compliance
+documentation: https://github.com/iamgini/ansible-collection-compliance/wiki
+homepage: https://github.com/iamgini/ansible-collection-compliance
+issues: https://github.com/iamgini/ansible-collection-compliance/issues

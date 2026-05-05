@@ -302,9 +302,9 @@ Apache License 2.0 - See [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/ginigangadharan/ansible-collection-compliance/issues)
-- **Documentation**: [Wiki](https://github.com/ginigangadharan/ansible-collection-compliance/wiki)
-- **Community**: [Discussions](https://github.com/ginigangadharan/ansible-collection-compliance/discussions)
+- **Issues**: [GitHub Issues](https://github.com/iamgini/ansible-collection-compliance/issues)
+- **Documentation**: [Wiki](https://github.com/iamgini/ansible-collection-compliance/wiki)
+- **Community**: [Discussions](https://github.com/iamgini/ansible-collection-compliance/discussions)
 
 ## Acknowledgments
 
