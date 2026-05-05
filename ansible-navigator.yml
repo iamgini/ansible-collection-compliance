@@ -7,7 +7,7 @@ ansible-navigator:
         type: become
     inventory:
       entries:
-      - inventory/hosts.yml
+      - inventory/hosts.ini
     playbook:
       path: playbooks/scan.yml
   color:
@@ -23,7 +23,7 @@ ansible-navigator:
       pass:
       - ANSIBLE_FORCE_COLOR
       - TERM
-    image: quay.io/ansible/creator-ee:latest
+    image: localhost/compliance-ee:latest
     pull:
       policy: missing
     volume-mounts:
