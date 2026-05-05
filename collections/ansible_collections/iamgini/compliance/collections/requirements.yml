@@ -1,0 +1,13 @@
+---
+collections:
+  - name: ansible.posix
+    version: ">=1.5.0"
+  - name: community.general
+    version: ">=7.0.0"
+  - name: ansible.utils
+    version: ">=2.10.0"
+
+# Collection dependencies:
+# - ansible.posix: provides sysctl, mount, selinux modules used in generated remediation playbooks
+# - community.general: provides xml module for ARF parsing, git_config for repository management
+# - ansible.utils: provides update_fact for merging exception lists

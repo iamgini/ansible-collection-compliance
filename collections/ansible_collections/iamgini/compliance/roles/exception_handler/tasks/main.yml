@@ -1,0 +1,40 @@
+---
+# Main task file for exception_handler role
+# Merge group and host-level exception lists
+
+- name: Combine group and host-level skip rules
+  ansible.builtin.set_fact:
+    effective_skip_rules: "{{ (group_compliance_skip_rules | default([]) + compliance_skip_rules | default([])) | unique | list }}"
+
+- name: Merge exception reasons (host-level overrides group-level)
+  ansible.builtin.set_fact:
+    effective_exception_reasons: "{{ (group_compliance_exception_reasons | default({})) | combine(compliance_exception_reasons | default({})) }}"
+
+- name: Display effective exception count
+  ansible.builtin.debug:
+    msg: >
+      Exception handler for {{ inventory_hostname }}:
+      Group-level exceptions: {{ group_compliance_skip_rules | default([]) | length }},
+      Host-level exceptions: {{ compliance_skip_rules | default([]) | length }},
+      Total unique exceptions: {{ effective_skip_rules | length }}
+
+- name: Write exception registry to report server
+  ansible.builtin.template:
+    src: exception_registry.json.j2
+    dest: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ exception_registry_filename }}"
+    mode: '0644'
+  delegate_to: "{{ report_server_host }}"
+  when: effective_skip_rules | length > 0
+
+- name: Create empty exception registry if no exceptions
+  ansible.builtin.copy:
+    content: |
+      {
+        "generated_at": "{{ ansible_date_time.iso8601 }}",
+        "hostname": "{{ inventory_hostname }}",
+        "effective_exceptions": []
+      }
+    dest: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ exception_registry_filename }}"
+    mode: '0644'
+  delegate_to: "{{ report_server_host }}"
+  when: effective_skip_rules | length == 0

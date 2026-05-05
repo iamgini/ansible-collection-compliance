@@ -1,0 +1,12 @@
+---
+# Default variables for generate_fix role
+
+# Fix generation mode: "report_server" or "execution_environment"
+generate_fix_mode: "report_server"
+
+# Output file paths
+remediation_raw_filename: "remediation-raw.yml"
+remediation_final_filename: "remediation.yml"
+
+# OpenSCAP generate fix command
+oscap_generate_fix_type: "ansible"

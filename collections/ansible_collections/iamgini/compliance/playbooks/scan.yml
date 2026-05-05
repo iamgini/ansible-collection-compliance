@@ -1,0 +1,20 @@
+---
+- name: Run OpenSCAP compliance scan and store results
+  hosts: "{{ target_hosts | default('all') }}"
+  gather_facts: true
+  become: true
+  collections:
+    - iamgini.compliance
+
+  pre_tasks:
+    - name: Validate required variables are defined
+      ansible.builtin.assert:
+        that:
+          - customer_id is defined
+          - cis_profile is defined
+          - ssg_datastream is defined
+          - report_server_host is defined
+        fail_msg: "Required variables missing - check group_vars/all.yml and host_vars"
+
+  roles:
+    - role: iamgini.compliance.oscap_scan

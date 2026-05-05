@@ -1,0 +1,20 @@
+---
+- name: Post-remediation validation scan
+  hosts: "{{ target_hosts | default('all') }}"
+  gather_facts: true
+  become: true
+  collections:
+    - iamgini.compliance
+
+  vars:
+    scan_dir: "{{ scan_date }}-post-{{ cis_profile | regex_replace('.*profile_', '') }}"
+
+  roles:
+    - role: iamgini.compliance.oscap_scan
+
+  post_tasks:
+    - name: Display compliance improvement summary
+      ansible.builtin.debug:
+        msg: >
+          Post-remediation scan complete for {{ inventory_hostname }}.
+          Report available at: {{ report_server_url }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/report.html

@@ -1,0 +1,21 @@
+---
+# Master playbook for full compliance automation cycle
+# Imports all phases in sequence
+# Note: remediate.yml and rescan.yml are NOT included here
+# They run after human approval in the AAP workflow template
+
+- name: Phase 1 - Run compliance scan
+  ansible.builtin.import_playbook: scan.yml
+
+- name: Phase 2 - Parse scan failures
+  ansible.builtin.import_playbook: parse_failures.yml
+
+- name: Phase 3 - Generate remediation content
+  ansible.builtin.import_playbook: generate_remediation.yml
+
+- name: Phase 4 - Commit remediation content to Git
+  ansible.builtin.import_playbook: commit_playbook.yml
+
+# Manual execution after approval:
+# ansible-playbook playbooks/remediate.yml -e "target_hosts=<group_or_host>"
+# ansible-playbook playbooks/rescan.yml -e "target_hosts=<group_or_host>"

@@ -1,0 +1,19 @@
+{
+  "generated_at": "{{ ansible_date_time.iso8601 }}",
+  "hostname": "{{ inventory_hostname }}",
+  "customer_id": "{{ customer_id }}",
+  "profile": "{{ cis_profile | regex_replace('.*profile_', '') }}",
+  "total_exceptions": {{ effective_skip_rules | length }},
+  "effective_exceptions": [
+{% for rule_id in effective_skip_rules %}
+    {
+      "rule_id": "{{ rule_id }}",
+      "reason": "{{ effective_exception_reasons[rule_id].reason | default('No reason provided') }}",
+      "approved_by": "{{ effective_exception_reasons[rule_id].approved_by | default('unknown') }}",
+      "approved_date": "{{ effective_exception_reasons[rule_id].approved_date | default('unknown') }}",
+      "review_date": "{{ effective_exception_reasons[rule_id].review_date | default('unknown') }}"
+    }{% if not loop.last %},{% endif %}
+
+{% endfor %}
+  ]
+}

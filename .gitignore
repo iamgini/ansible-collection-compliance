@@ -1,0 +1,45 @@
+# Generated compliance reports and artifacts
+playbooks/generated/
+generated/
+
+# Collection build artifacts
+*.tar.gz
+*.whl
+
+# Ansible artifacts
+*.retry
+.ansible/
+ansible.log
+/tmp/
+
+# Playbook artifacts
+playbook-artifacts/
+
+# Fact cache
+ansible_facts/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,56 @@
+---
+# Main task file for parse_results role
+# Parse ARF XML and extract failed rules to JSON
+
+- name: Read result.xml from report server
+  community.general.xml:
+    path: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/result.xml"
+    xpath: "//xccdf:rule-result"
+    namespaces: "{{ xccdf_namespace }}"
+    content: attribute
+  delegate_to: "{{ report_server_host }}"
+  register: xml_parse_result
+
+- name: Extract failed rules from parsed XML
+  ansible.builtin.set_fact:
+    failed_rules_list: "{{ xml_parse_result.matches | default([]) | selectattr('xccdf:result', 'defined') | selectattr('xccdf:result', 'equalto', 'fail') | list }}"
+  when: xml_parse_result.matches is defined
+
+- name: Count total and failed rules
+  ansible.builtin.set_fact:
+    total_rules_count: "{{ xml_parse_result.count | default(0) }}"
+    failed_rules_count: "{{ failed_rules_list | length }}"
+    passed_rules_count: "{{ (xml_parse_result.count | default(0) | int) - (failed_rules_list | length | int) }}"
+
+- name: Calculate compliance score percentage
+  ansible.builtin.set_fact:
+    compliance_score: "{{ ((passed_rules_count | int / total_rules_count | int) * 100) | round(1) if total_rules_count | int > 0 else 0 }}"
+
+- name: Create failed-rules.json from parsed data
+  ansible.builtin.template:
+    src: failed-rules.json.j2
+    dest: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ failed_rules_json }}"
+    mode: '0644'
+  delegate_to: "{{ report_server_host }}"
+
+- name: Update metadata.json with compliance scores
+  ansible.builtin.template:
+    src: metadata-update.json.j2
+    dest: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ metadata_json }}"
+    mode: '0644'
+  delegate_to: "{{ report_server_host }}"
+
+- name: Set role output facts
+  ansible.builtin.set_fact:
+    parse_results_failed_count: "{{ failed_rules_count }}"
+    parse_results_total_count: "{{ total_rules_count }}"
+    parse_results_compliance_score: "{{ compliance_score }}"
+
+- name: Display parsing summary
+  ansible.builtin.debug:
+    msg: >
+      Parsed {{ inventory_hostname }} scan results:
+      Total rules: {{ total_rules_count }},
+      Passed: {{ passed_rules_count }},
+      Failed: {{ failed_rules_count }},
+      Compliance score: {{ compliance_score }}%

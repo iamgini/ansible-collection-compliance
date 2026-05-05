@@ -1,0 +1,10 @@
+---
+- name: Generate targeted Ansible remediation playbook from scan results
+  hosts: "{{ target_hosts | default('all') }}"
+  gather_facts: true
+  become: false
+  collections:
+    - iamgini.compliance
+
+  roles:
+    - role: iamgini.compliance.generate_fix

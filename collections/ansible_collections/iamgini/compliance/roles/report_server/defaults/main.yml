@@ -1,0 +1,17 @@
+---
+# Default variables for report_server role
+
+# Report server directory configuration
+report_server_base_dir: "/var/reports"
+report_server_user: "nginx"
+report_server_group: "nginx"
+
+# Nginx configuration
+nginx_package_name: "nginx"
+nginx_service_name: "nginx"
+nginx_conf_dir: "/etc/nginx/conf.d"
+nginx_vhost_filename: "reports.conf"
+
+# Firewall configuration
+firewall_enable: true
+firewall_http_port: 80

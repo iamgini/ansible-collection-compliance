@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  gather_facts: true
+  become: true
+  collections:
+    - iamgini.compliance
+
+  tasks:
+    - name: Test oscap_scan role
+      ansible.builtin.include_role:
+        name: iamgini.compliance.oscap_scan

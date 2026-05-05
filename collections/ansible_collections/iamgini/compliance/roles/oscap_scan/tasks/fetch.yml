@@ -1,0 +1,14 @@
+---
+# Fetch scan results from target to controller
+
+- name: Fetch ARF XML result file to controller
+  ansible.builtin.fetch:
+    src: "{{ oscap_results_dir }}/result.xml"
+    dest: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}/result.xml"
+    flat: true
+
+- name: Fetch HTML report to controller
+  ansible.builtin.fetch:
+    src: "{{ oscap_results_dir }}/report.html"
+    dest: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}/report.html"
+    flat: true

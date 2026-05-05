@@ -1,0 +1,24 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 160
+    level: warning
+  truthy:
+    allowed-values: ['true', 'false']
+  comments:
+    min-spaces-from-content: 1
+  indentation:
+    spaces: 2
+    indent-sequences: true
+  braces:
+    max-spaces-inside: 1
+  brackets:
+    max-spaces-inside: 1
+
+ignore: |
+  generated/
+  collections/
+  .cache/
+  .git/

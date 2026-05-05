@@ -1,0 +1,66 @@
+---
+# Ansible Navigator Configuration for SCAP Compliance Scanning
+
+ansible-navigator:
+  # Execution environment settings
+  execution-environment:
+    enabled: true
+    image: quay.io/ansible/creator-ee:latest  # Change to custom EE if needed
+    pull:
+      policy: missing  # missing | always | never | tag
+    container-engine: podman  # podman | docker
+
+    # Volume mounts for report generation
+    volume-mounts:
+      - src: "{{ playbook_dir }}/generated"
+        dest: "/tmp/oscap_results"
+        options: "Z"  # SELinux relabel
+
+    # Environment variables (if needed)
+    environment-variables:
+      pass:
+        - ANSIBLE_FORCE_COLOR
+        - TERM
+      # set:
+      #   ANSIBLE_TIMEOUT: "30"
+
+  # Playbook execution settings
+  playbook-artifact:
+    enable: true
+    replay: /tmp/playbook-artifacts/{playbook_name}-artifact-{ts_utc}.json
+    save-as: /tmp/playbook-artifacts/{playbook_name}-artifact-{ts_utc}.json
+
+  # Ansible configuration
+  ansible:
+    inventory:
+      entries:
+        - inventory/hosts.yml
+    playbook: playbooks/scan.yml
+
+  # Display mode
+  mode: stdout  # stdout | interactive
+
+  # Logging
+  logging:
+    level: info  # debug | info | warning | error | critical
+    append: false
+    file: /tmp/ansible-navigator.log
+
+  # Editor (for interactive mode)
+  editor:
+    command: vim  # vim | vi | nano | code
+    console: false
+
+  # Color output
+  color:
+    enable: true
+    osc4: true
+
+  # Documentation
+  documentation:
+    plugin:
+      name: shell
+      type: become
+
+  # Time zone
+  time-zone: UTC

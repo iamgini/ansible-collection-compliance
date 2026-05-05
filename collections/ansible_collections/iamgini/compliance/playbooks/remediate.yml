@@ -1,0 +1,33 @@
+---
+- name: Apply generated compliance remediation with exception handling
+  hosts: "{{ target_hosts | default('all') }}"
+  gather_facts: true
+  become: true
+  collections:
+    - iamgini.compliance
+
+  pre_tasks:
+    - name: Build effective exception list from group and host vars
+      ansible.builtin.include_role:
+        name: iamgini.compliance.exception_handler
+
+  tasks:
+    - name: Display exception information
+      ansible.builtin.debug:
+        msg: >
+          Applying remediation for {{ inventory_hostname }}.
+          Exceptions active: {{ effective_skip_rules | length }}.
+          Generated playbook: {{ generate_fix_playbook_path }}
+
+    - name: Apply generated remediation playbook
+      ansible.builtin.include_tasks:
+        file: "{{ generate_fix_playbook_path }}"
+      vars:
+        ansible_skip_tags: "{{ effective_skip_rules }}"
+      when: parse_results_failed_count | default(0) | int > 0
+
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg: >
+          Remediation completed for {{ inventory_hostname }}.
+          Run rescan.yml to validate compliance improvement.

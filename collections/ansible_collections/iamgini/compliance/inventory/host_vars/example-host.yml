@@ -1,0 +1,47 @@
+---
+# Example host_vars file — copy and rename for real hosts
+# This is documentation only - not a real host configuration
+# Real hostnames should be managed in private inventory or AAP-managed inventory
+
+# Customer/organization identifier for this host
+customer_id: "example-customer"
+
+# Host-specific exception rules (extends group-level exceptions)
+# These rules are skipped ONLY on this specific host
+# Rule IDs must use full XCCDF format
+compliance_skip_rules:
+  - "xccdf_org.ssgproject.content_rule_service_nfs_disabled"
+
+# Justification and approval tracking for each exception
+# REQUIRED for audit and compliance reporting
+compliance_exception_reasons:
+  xccdf_org.ssgproject.content_rule_service_nfs_disabled:
+    reason: "Shared storage mount required for application clustering"
+    approved_by: "security-team@example.com"
+    approved_date: "2026-01-01"
+    review_date: "2026-07-01"
+
+# Optional: override SSG profile variables for this host
+# Use sparingly - most hosts should use profile defaults
+compliance_var_overrides:
+  var_password_pam_minlen: "16"
+  var_accounts_maximum_age_login_defs: "60"
+
+# Example of multiple exceptions with different reasons
+# Uncomment and modify as needed:
+#
+# compliance_skip_rules:
+#   - "xccdf_org.ssgproject.content_rule_service_nfs_disabled"
+#   - "xccdf_org.ssgproject.content_rule_package_tftp_removed"
+#
+# compliance_exception_reasons:
+#   xccdf_org.ssgproject.content_rule_service_nfs_disabled:
+#     reason: "NFS required for shared application data"
+#     approved_by: "security-team@example.com"
+#     approved_date: "2026-01-01"
+#     review_date: "2026-07-01"
+#   xccdf_org.ssgproject.content_rule_package_tftp_removed:
+#     reason: "PXE boot server - TFTP required for network provisioning"
+#     approved_by: "infra-team@example.com"
+#     approved_date: "2026-01-15"
+#     review_date: "2026-07-15"

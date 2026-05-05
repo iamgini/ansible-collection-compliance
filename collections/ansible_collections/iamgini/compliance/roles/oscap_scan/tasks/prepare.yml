@@ -1,0 +1,16 @@
+---
+# Prepare directories for scan on target and controller
+
+- name: Create results directory on target
+  ansible.builtin.file:
+    path: "{{ oscap_results_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create fetch directory on controller
+  ansible.builtin.file:
+    path: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  run_once: false

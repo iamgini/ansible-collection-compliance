@@ -1,0 +1,22 @@
+---
+# Run OpenSCAP XCCDF evaluation on target host
+
+- name: Run OpenSCAP XCCDF eval
+  ansible.builtin.command:
+    cmd: >
+      {{ oscap_binary }} xccdf eval
+      --profile {{ cis_profile }}
+      --results {{ oscap_results_dir }}/result.xml
+      --report {{ oscap_results_dir }}/report.html
+      {{ ssg_datastream }}
+  register: oscap_scan_result
+  failed_when: oscap_scan_result.rc not in [0, 2]
+  changed_when: false
+  timeout: "{{ oscap_scan_timeout }}"
+
+- name: Display scan summary
+  ansible.builtin.debug:
+    msg: >
+      Scan completed for {{ inventory_hostname }}.
+      Return code: {{ oscap_scan_result.rc }}
+      (0 = all pass, 2 = findings detected)

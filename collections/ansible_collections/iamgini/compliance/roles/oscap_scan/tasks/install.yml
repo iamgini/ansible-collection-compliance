@@ -1,0 +1,19 @@
+---
+# Install OpenSCAP packages on target host
+
+- name: Install OpenSCAP packages on Linux
+  ansible.builtin.package:
+    name: "{{ oscap_packages }}"
+    state: present
+  when: target_platform == "linux"
+  register: oscap_install_result
+
+- name: Verify oscap binary is available
+  ansible.builtin.stat:
+    path: "{{ oscap_binary }}"
+  register: oscap_binary_stat
+
+- name: Fail if oscap binary not found after installation
+  ansible.builtin.fail:
+    msg: "OpenSCAP binary not found at {{ oscap_binary }} after installation"
+  when: not oscap_binary_stat.stat.exists

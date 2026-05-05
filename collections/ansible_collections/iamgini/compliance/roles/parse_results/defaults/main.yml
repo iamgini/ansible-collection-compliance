@@ -1,0 +1,15 @@
+---
+# Default variables for parse_results role
+
+# XCCDF namespace for XML parsing
+xccdf_namespace:
+  xccdf: "http://checklists.nist.gov/xccdf/1.2"
+
+# XPath queries
+xpath_failed_rules: "//xccdf:rule-result[xccdf:result/text()='fail']"
+xpath_rule_id: "@idref"
+xpath_result_text: "xccdf:result/text()"
+
+# Output file names
+failed_rules_json: "failed-rules.json"
+metadata_json: "metadata.json"

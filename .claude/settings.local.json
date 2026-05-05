@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ansible-galaxy collection *)",
+      "Bash(ansible-playbook playbooks/scan.yml --list-tasks -i inventory/hosts.yml -e \"target_hosts=localhost\" -e \"customer_id=test\")",
+      "Bash(ansible-builder --version)",
+      "Bash(ansible-builder build *)",
+      "Bash(podman run *)",
+      "Bash(podman build *)"
+    ]
+  }
+}

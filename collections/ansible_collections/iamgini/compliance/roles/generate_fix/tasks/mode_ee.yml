@@ -1,0 +1,47 @@
+---
+# Generate remediation playbook in execution environment
+
+- name: Create temporary directory for EE-based generation
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: _oscap_gen
+  register: ee_temp_dir
+  delegate_to: localhost
+
+- name: Fetch result.xml from report server to EE
+  ansible.builtin.copy:
+    src: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/result.xml"
+    dest: "{{ ee_temp_dir.path }}/result.xml"
+    mode: '0644'
+  delegate_to: localhost
+
+- name: Generate Ansible remediation playbook in EE
+  ansible.builtin.shell:
+    cmd: >
+      {{ oscap_binary }} xccdf generate fix
+      --fix-type {{ oscap_generate_fix_type }}
+      --result-id ""
+      {{ ee_temp_dir.path }}/result.xml
+      > {{ ee_temp_dir.path }}/{{ remediation_raw_filename }}
+  delegate_to: localhost
+  register: generate_fix_ee_result
+
+- name: Post-process generated playbook
+  ansible.builtin.include_tasks: post_process.yml
+  vars:
+    raw_playbook_path: "{{ ee_temp_dir.path }}/{{ remediation_raw_filename }}"
+    final_playbook_path: "{{ ee_temp_dir.path }}/{{ remediation_final_filename }}"
+    process_delegate: localhost
+
+- name: Push final playbook to report server
+  ansible.builtin.copy:
+    src: "{{ ee_temp_dir.path }}/{{ remediation_final_filename }}"
+    dest: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ remediation_final_filename }}"
+    mode: '0644'
+  delegate_to: "{{ report_server_host }}"
+
+- name: Cleanup EE temporary directory
+  ansible.builtin.file:
+    path: "{{ ee_temp_dir.path }}"
+    state: absent
+  delegate_to: localhost

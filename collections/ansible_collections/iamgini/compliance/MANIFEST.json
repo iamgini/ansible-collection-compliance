@@ -1,0 +1,38 @@
+{
+ "collection_info": {
+  "namespace": "iamgini",
+  "name": "compliance",
+  "version": "0.1.0",
+  "authors": [
+   "Gineesh Madapparambath"
+  ],
+  "readme": "README.md",
+  "tags": [
+   "security",
+   "compliance",
+   "openscap",
+   "hardening",
+   "cis",
+   "stig",
+   "scap"
+  ],
+  "description": "Community Ansible collection for automated security compliance scanning and remediation using OpenSCAP and ComplianceAsCode. Supports Linux, Windows (future), and network devices (future).\n",
+  "license": [
+   "Apache-2.0"
+  ],
+  "license_file": null,
+  "dependencies": {},
+  "repository": "https://github.com/iamgini/ansible-collection-compliance",
+  "documentation": "https://github.com/iamgini/ansible-collection-compliance/wiki",
+  "homepage": "https://github.com/iamgini/ansible-collection-compliance",
+  "issues": "https://github.com/iamgini/ansible-collection-compliance/issues"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "9c646917980ff1e6946e59329be610ea24594823979860e7e042fdf6399bf998",
+  "format": 1
+ },
+ "format": 1
+}
