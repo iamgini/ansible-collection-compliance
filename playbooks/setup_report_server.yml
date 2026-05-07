@@ -1,0 +1,17 @@
+---
+- name: Set up compliance report server
+  hosts: "{{ report_server_host | default('report_server') }}"
+  gather_facts: true
+  become: true
+  collections:
+    - iamgini.compliance
+
+  pre_tasks:
+    - name: Validate required variables are defined
+      ansible.builtin.assert:
+        that:
+          - report_server_base_dir is defined
+        fail_msg: "Required variable report_server_base_dir is missing - check group_vars/all.yml"
+
+  roles:
+    - role: report_server
