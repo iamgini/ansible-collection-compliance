@@ -1,4 +1,8 @@
 ---
+# Podman-based testing scenario for quick validation
+# Limitations: Cannot test kernel params, boot configs, or partition controls
+# For full CIS testing, use: molecule test -s vm-full-cis
+
 dependency:
   name: galaxy
   options:

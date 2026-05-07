@@ -1,0 +1,52 @@
+---
+- name: Converge - Full CIS Compliance Testing
+  hosts: all
+  gather_facts: true
+  become: true
+  collections:
+    - iamgini.compliance
+
+  pre_tasks:
+    - name: Display test environment info
+      ansible.builtin.debug:
+        msg:
+          - "Testing on: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Kernel: {{ ansible_kernel }}"
+          - "Architecture: {{ ansible_architecture }}"
+          - "Virtualization: {{ ansible_virtualization_type }}"
+
+    - name: Ensure OpenSCAP scanner is installed
+      ansible.builtin.package:
+        name:
+          - openscap-scanner
+          - scap-security-guide
+        state: present
+
+  tasks:
+    - name: Run OpenSCAP compliance scan
+      ansible.builtin.include_role:
+        name: iamgini.compliance.oscap_scan
+      vars:
+        oscap_profile: "{{ oscap_profile | default('xccdf_org.ssgproject.content_profile_cis') }}"
+        oscap_tailoring_file: ""
+        oscap_generate_fix: true
+
+    - name: Parse scan results
+      ansible.builtin.include_role:
+        name: iamgini.compliance.parse_results
+      when: oscap_scan_results is defined
+
+    - name: Generate remediation playbook
+      ansible.builtin.include_role:
+        name: iamgini.compliance.generate_fix
+      when:
+        - oscap_scan_results is defined
+        - oscap_generate_fix | default(false) | bool
+
+  post_tasks:
+    - name: Display scan summary
+      ansible.builtin.debug:
+        msg:
+          - "Scan completed successfully"
+          - "Results available in: {{ report_server_base_dir | default('/tmp/cis_reports') }}"
+      when: oscap_scan_results is defined

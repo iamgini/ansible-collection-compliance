@@ -6,7 +6,8 @@
       "Bash(ansible-builder --version)",
       "Bash(ansible-builder build *)",
       "Bash(podman run *)",
-      "Bash(podman build *)"
+      "Bash(podman build *)",
+      "Bash(chmod +x *)"
     ]
   }
 }

@@ -1,0 +1,33 @@
+---
+- name: Prepare VMs for CIS testing
+  hosts: all
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Update package cache (RHEL/CentOS)
+      ansible.builtin.dnf:
+        update_cache: true
+      when: ansible_os_family == "RedHat"
+
+    - name: Install required packages for testing
+      ansible.builtin.package:
+        name:
+          - python3
+          - python3-pip
+          - openscap-scanner
+          - scap-security-guide
+          - aide
+          - audit
+          - rsyslog
+        state: present
+
+    - name: Ensure report directory exists
+      ansible.builtin.file:
+        path: "{{ report_server_base_dir | default('/tmp/cis_reports') }}"
+        state: directory
+        mode: '0755'
+
+    - name: Display VM readiness
+      ansible.builtin.debug:
+        msg: "VM {{ inventory_hostname }} is ready for CIS compliance testing"

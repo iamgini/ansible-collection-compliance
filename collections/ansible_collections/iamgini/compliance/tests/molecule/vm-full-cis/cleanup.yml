@@ -1,0 +1,15 @@
+---
+- name: Cleanup after CIS testing
+  hosts: all
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Remove test reports
+      ansible.builtin.file:
+        path: "{{ report_server_base_dir | default('/tmp/cis_reports') }}"
+        state: absent
+
+    - name: Display cleanup completion
+      ansible.builtin.debug:
+        msg: "Cleanup completed for {{ inventory_hostname }}"

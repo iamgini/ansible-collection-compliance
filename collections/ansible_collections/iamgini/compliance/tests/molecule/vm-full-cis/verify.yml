@@ -1,0 +1,50 @@
+---
+- name: Verify CIS compliance scan execution
+  hosts: all
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Check if OpenSCAP is installed
+      ansible.builtin.command: oscap --version
+      register: oscap_version
+      changed_when: false
+      failed_when: oscap_version.rc != 0
+
+    - name: Display OpenSCAP version
+      ansible.builtin.debug:
+        msg: "OpenSCAP version: {{ oscap_version.stdout_lines[0] }}"
+
+    - name: Check if scap-security-guide content exists
+      ansible.builtin.stat:
+        path: /usr/share/xml/scap/ssg/content
+      register: ssg_content
+
+    - name: Verify SSG content availability
+      ansible.builtin.assert:
+        that:
+          - ssg_content.stat.exists
+          - ssg_content.stat.isdir
+        fail_msg: "SCAP Security Guide content not found"
+        success_msg: "SCAP Security Guide content is available"
+
+    - name: List available CIS profiles
+      ansible.builtin.shell: |
+        oscap info /usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml 2>/dev/null | grep -i "Profile.*cis" || echo "No CIS profiles found"
+      register: cis_profiles
+      changed_when: false
+      failed_when: false
+
+    - name: Display available CIS profiles
+      ansible.builtin.debug:
+        msg: "{{ cis_profiles.stdout_lines }}"
+
+    - name: Check for generated reports (if scan was run)
+      ansible.builtin.find:
+        paths: "{{ report_server_base_dir | default('/tmp/cis_reports') }}"
+        patterns: "*.html,*.xml"
+      register: report_files
+
+    - name: Display report summary
+      ansible.builtin.debug:
+        msg: "Found {{ report_files.matched }} report file(s)"
