@@ -1,0 +1,44 @@
+---
+# Run OpenSCAP scan from Execution Environment using oscap-ssh
+# This mode scans targets remotely without installing OpenSCAP on targets
+
+- name: Create local results directory on controller (EE)
+  ansible.builtin.file:
+    path: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  run_once: false
+
+- name: Get SSH connection details
+  ansible.builtin.set_fact:
+    oscap_ssh_target: "{{ ansible_user }}@{{ ansible_host | default(inventory_hostname) }}"
+    oscap_ssh_port: "{{ ansible_port | default(22) }}"
+    oscap_ssh_key: "{{ ansible_ssh_private_key_file | default('') }}"
+
+- name: Build oscap-ssh command
+  ansible.builtin.set_fact:
+    oscap_ssh_cmd: >-
+      oscap-ssh {{ oscap_ssh_target }} {{ oscap_ssh_port }}
+      {% if oscap_ssh_key %}--ssh-additional-options="-i {{ oscap_ssh_key }}"{% endif %}
+      xccdf eval
+      --profile {{ cis_profile }}
+      --results {{ oscap_fetch_dir }}/{{ inventory_hostname }}/result.xml
+      --report {{ oscap_fetch_dir }}/{{ inventory_hostname }}/report.html
+      {{ ssg_datastream }}
+
+- name: Run OpenSCAP scan via SSH from EE
+  ansible.builtin.command:
+    cmd: "{{ oscap_ssh_cmd }}"
+  delegate_to: localhost
+  register: oscap_scan_result
+  failed_when: oscap_scan_result.rc not in [0, 2]
+  changed_when: false
+  timeout: "{{ oscap_scan_timeout }}"
+
+- name: Display scan summary
+  ansible.builtin.debug:
+    msg: >
+      Scan completed for {{ inventory_hostname }} via oscap-ssh from EE.
+      Return code: {{ oscap_scan_result.rc }}
+      (0 = all pass, 2 = findings detected)

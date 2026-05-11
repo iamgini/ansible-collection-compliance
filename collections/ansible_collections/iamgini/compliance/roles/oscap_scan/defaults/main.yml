@@ -2,7 +2,12 @@
 # Default variables for oscap_scan role
 # Override in group_vars or host_vars as needed
 
-# Whether to install OpenSCAP packages on target
+# Execution mode: controlled by group_vars/all.yml
+# - local: Install and run OpenSCAP on each target
+# - execution_environment: Run from EE using oscap-ssh (no installation on targets)
+# execution_mode: "local"  # Defined in group_vars/all.yml
+
+# Whether to install OpenSCAP packages on target (only used in local mode)
 oscap_scan_install: true
 
 # OpenSCAP packages for Linux platforms

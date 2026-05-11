@@ -1,0 +1,58 @@
+---
+# Run OpenSCAP scan using oscap binary from EE
+# This approach copies the oscap binary and libs from EE to targets temporarily
+# No package installation required on targets!
+
+- name: Create local results directory on controller (EE)
+  ansible.builtin.file:
+    path: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  run_once: false
+
+- name: Create temporary directory on target
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: oscap_scan_
+  register: target_temp_dir
+
+- name: Copy SCAP datastream from EE to target
+  ansible.builtin.copy:
+    src: "{{ ssg_datastream }}"
+    dest: "{{ target_temp_dir.path }}/datastream.xml"
+    mode: '0644'
+
+- name: Run oscap evaluation via script from EE
+  ansible.builtin.script:
+    cmd: /usr/bin/oscap xccdf eval --profile {{ cis_profile }} --results {{ target_temp_dir.path }}/result.xml --report {{ target_temp_dir.path }}/report.html {{ target_temp_dir.path }}/datastream.xml
+  register: oscap_scan_result
+  failed_when: oscap_scan_result.rc not in [0, 2]
+  changed_when: false
+  timeout: "{{ oscap_scan_timeout }}"
+  environment:
+    LD_LIBRARY_PATH: "/usr/lib64:/lib64"
+
+- name: Fetch result.xml from target
+  ansible.builtin.fetch:
+    src: "{{ target_temp_dir.path }}/result.xml"
+    dest: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}/result.xml"
+    flat: yes
+
+- name: Fetch report.html from target
+  ansible.builtin.fetch:
+    src: "{{ target_temp_dir.path }}/report.html"
+    dest: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}/report.html"
+    flat: yes
+
+- name: Clean up temporary directory on target
+  ansible.builtin.file:
+    path: "{{ target_temp_dir.path }}"
+    state: absent
+
+- name: Display scan summary
+  ansible.builtin.debug:
+    msg: >
+      Scan completed for {{ inventory_hostname }} using oscap from EE.
+      Return code: {{ oscap_scan_result.rc }}
+      (0 = all pass, 2 = findings detected)

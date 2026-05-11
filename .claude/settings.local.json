@@ -7,7 +7,31 @@
       "Bash(ansible-builder build *)",
       "Bash(podman run *)",
       "Bash(podman build *)",
-      "Bash(chmod +x *)"
+      "Bash(chmod +x *)",
+      "Bash(ansible-playbook)",
+      "Bash(molecule --version)",
+      "Bash(molecule init *)",
+      "Bash(molecule test *)",
+      "Bash(MOLECULE_GLOB_MODE=role molecule test *)",
+      "Bash(pip list *)",
+      "Bash(pip install *)",
+      "Bash(MOLECULE_GLOB_MODE=role molecule create)",
+      "Bash(MOLECULE_GLOB_MODE=role molecule converge)",
+      "Bash(MOLECULE_GLOB_MODE=role molecule destroy)",
+      "Bash(MOLECULE_GLOB_MODE=role molecule verify *)",
+      "Bash(podman exec *)",
+      "Bash(ansible-playbook *)",
+      "Bash(ansible-navigator --version)",
+      "Bash(podman images *)",
+      "Bash(ansible *)",
+      "Bash(ansible-navigator run *)",
+      "Bash(cp -v roles/oscap_scan/tasks/main.yml collections/ansible_collections/iamgini/compliance/roles/oscap_scan/tasks/main.yml)",
+      "Bash(cp -v roles/oscap_scan/tasks/scan_ee_mode.yml collections/ansible_collections/iamgini/compliance/roles/oscap_scan/tasks/scan_ee_mode.yml)",
+      "Bash(cp -v roles/oscap_scan/defaults/main.yml collections/ansible_collections/iamgini/compliance/roles/oscap_scan/defaults/main.yml)",
+      "Bash(tee /tmp/scan-run.log)",
+      "Bash(cp -v roles/oscap_scan/tasks/scan_ee_agentless.yml collections/ansible_collections/iamgini/compliance/roles/oscap_scan/tasks/scan_ee_agentless.yml)",
+      "Bash(tee /tmp/scan-agentless.log)",
+      "Bash(awk '{print $3}')"
     ]
   }
 }

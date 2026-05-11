@@ -1,0 +1,98 @@
+---
+# Truly agentless scanning: Copy oscap binary and dependencies from EE
+# No pre-installation required on targets
+
+- name: Create local results directory on controller (EE)
+  ansible.builtin.file:
+    path: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  run_once: false
+
+- name: Create temporary directory on target
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: oscap_
+  register: target_temp_dir
+
+- name: Create bin directory in temp
+  ansible.builtin.file:
+    path: "{{ target_temp_dir.path }}/bin"
+    state: directory
+    mode: '0755'
+
+- name: Create lib directory in temp
+  ansible.builtin.file:
+    path: "{{ target_temp_dir.path }}/lib"
+    state: directory
+    mode: '0755'
+
+- name: Copy oscap binary from EE to target
+  ansible.builtin.copy:
+    src: /usr/bin/oscap
+    dest: "{{ target_temp_dir.path }}/bin/oscap"
+    mode: '0755'
+
+- name: Copy required libraries from EE to target
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ target_temp_dir.path }}/lib/"
+    mode: '0755'
+  loop:
+    - /usr/lib64/libopenscap.so.25
+    - /usr/lib64/libxml2.so.2
+    - /usr/lib64/libxslt.so.1
+    - /usr/lib64/libexslt.so.0
+    - /usr/lib64/libgcrypt.so.20
+    - /usr/lib64/libpcre.so.1
+    - /usr/lib64/libxmlsec1.so.1
+    - /usr/lib64/libxmlsec1-openssl.so.1
+    - /usr/lib64/libcurl.so.4
+    - /usr/lib64/libgpg-error.so.0
+  ignore_errors: true
+
+- name: Copy SCAP datastream from EE to target
+  ansible.builtin.copy:
+    src: "{{ ssg_datastream }}"
+    dest: "{{ target_temp_dir.path }}/datastream.xml"
+    mode: '0644'
+
+- name: Run oscap evaluation using copied binary
+  ansible.builtin.command:
+    cmd: >
+      {{ target_temp_dir.path }}/bin/oscap xccdf eval
+      --profile {{ cis_profile }}
+      --results {{ target_temp_dir.path }}/result.xml
+      --report {{ target_temp_dir.path }}/report.html
+      {{ target_temp_dir.path }}/datastream.xml
+  register: oscap_scan_result
+  failed_when: oscap_scan_result.rc not in [0, 2]
+  changed_when: false
+  timeout: "{{ oscap_scan_timeout }}"
+  environment:
+    LD_LIBRARY_PATH: "{{ target_temp_dir.path }}/lib:/usr/lib64:/lib64"
+
+- name: Fetch result.xml from target
+  ansible.builtin.fetch:
+    src: "{{ target_temp_dir.path }}/result.xml"
+    dest: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}/result.xml"
+    flat: yes
+
+- name: Fetch report.html from target
+  ansible.builtin.fetch:
+    src: "{{ target_temp_dir.path }}/report.html"
+    dest: "{{ oscap_fetch_dir }}/{{ inventory_hostname }}/report.html"
+    flat: yes
+
+- name: Clean up temporary directory on target
+  ansible.builtin.file:
+    path: "{{ target_temp_dir.path }}"
+    state: absent
+
+- name: Display scan summary
+  ansible.builtin.debug:
+    msg: >
+      Agentless scan completed for {{ inventory_hostname }}.
+      Return code: {{ oscap_scan_result.rc }}
+      (0 = all pass, 2 = findings detected)

@@ -1,0 +1,63 @@
+---
+# Global defaults for SCAP compliance scanning
+# Override these values at group or host level as needed
+
+# Customer/organization identification
+customer_id: "demo-org"
+
+# Platform targeting
+target_platform: "linux"          # linux | windows | network (future)
+linux_family: "rhel"              # rhel | debian | suse (linux only)
+
+# Profile selection (override per group or host)
+# Common profiles:
+# - xccdf_org.ssgproject.content_profile_cis_level1_server
+# - xccdf_org.ssgproject.content_profile_cis_level2_server
+# - xccdf_org.ssgproject.content_profile_stig
+cis_profile: "xccdf_org.ssgproject.content_profile_cis_level2_server"
+
+# SSG datastream file (adjust for your RHEL version)
+# RHEL 9: /usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml
+# RHEL 8: /usr/share/xml/scap/ssg/content/ssg-rhel8-ds.xml
+# RHEL 7: /usr/share/xml/scap/ssg/content/ssg-rhel7-ds.xml
+ssg_datastream: "/usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml"
+
+# Report server configuration
+report_server_host: "report_server"  # Matches inventory group name
+report_server_base_dir: "/var/www/compliance-reports"
+report_server_url: "http://{{ hostvars[groups['report_server'][0]]['ansible_host'] | default('localhost') }}/reports"
+
+# Scan settings
+scan_date: "{{ ansible_date_time.date }}"
+scan_dir: "{{ scan_date }}-{{ cis_profile | regex_replace('.*profile_', '') }}"
+
+# OpenSCAP binary paths (override if non-standard install)
+oscap_binary: "/usr/bin/oscap"
+oscap_results_dir: "/tmp/oscap_results"
+
+# Scan timeout in seconds (large environments may need more)
+oscap_scan_timeout: 600
+
+# Execution mode: "local", "execution_environment", or "ee_agentless"
+# - local: Install OpenSCAP on targets and run scans locally on each target
+# - execution_environment: Use oscap-ssh from EE (requires oscap binary on targets)
+# - ee_agentless: Copy oscap binary from EE to targets temporarily (fully agentless)
+execution_mode: "ee_agentless"
+
+# Fix generation mode: "report_server" or "execution_environment"
+# - report_server: oscap generate fix runs on report server (requires openscap-utils on report server)
+# - execution_environment: oscap generate fix runs in AAP EE (requires openscap-utils in EE image)
+generate_fix_mode: "execution_environment"
+
+# Git settings for remediation playbook storage
+git_repo_path: "/opt/compliance-playbooks"
+git_branch: "main"
+git_author_name: "Compliance Automation Bot"
+git_author_email: "automation@example.com"
+
+# Exception defaults (empty — override at group or host level)
+compliance_skip_rules: []
+compliance_exception_reasons: {}
+
+# Optional: variable overrides for profile-level SSG variables
+compliance_var_overrides: {}

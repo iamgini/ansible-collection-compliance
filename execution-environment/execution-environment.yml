@@ -2,7 +2,7 @@
 version: 3
 
 build_arg_defaults:
-  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "--pre"
+  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: "--ignore-certs"
 
 dependencies:
   galaxy: requirements.yml
@@ -11,4 +11,4 @@ dependencies:
 
 images:
   base_image:
-    name: quay.io/ansible/ansible-runner:latest
+    name: quay.io/centos/centos:stream9

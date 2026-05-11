@@ -1,0 +1,22 @@
+---
+- name: Prepare targets for EE-based scanning
+  hosts: "{{ target_hosts | default('scan_targets') }}"
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Install minimal OpenSCAP scanner (binary only)
+      ansible.builtin.package:
+        name: openscap-scanner
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Verify oscap binary is available
+      ansible.builtin.command:
+        cmd: oscap --version
+      register: oscap_version
+      changed_when: false
+
+    - name: Display oscap version
+      ansible.builtin.debug:
+        msg: "Target {{ inventory_hostname }} has {{ oscap_version.stdout_lines[0] }}"

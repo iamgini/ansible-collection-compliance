@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    report_server_base_dir: /var/www/compliance-reports
+
+  roles:
+    - role: report_server

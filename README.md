@@ -77,13 +77,13 @@ report_server_base_dir: "/var/reports"
 ### 3. Set Up Report Server
 
 ```bash
-ansible-playbook playbooks/setup_report_server.yml -i inventory
+ansible-playbook playbooks/setup_report_server.yml -i hosts.ini
 ```
 
 ### 4. Run Your First Scan
 
 ```bash
-ansible-playbook playbooks/scan.yml -i inventory
+ansible-playbook playbooks/scan.yml -i hosts.ini
 ```
 
 ### 5. View Results
@@ -244,7 +244,7 @@ compliance_exception_reasons:
     approved_date: "2026-01-15"
     review_date: "2027-01-15"
     ticket: "SEC-1234"
-    
+
   xccdf_org.ssgproject.content_rule_sysctl_net_ipv4_ip_forward:
     reason: "Required for nginx reverse proxy to backend servers"
     approved_by: "security-team@example.com"

@@ -1,0 +1,50 @@
+# Compliance Scanner Execution Environment
+# Manual build for better control
+FROM quay.io/centos/centos:stream9
+
+# Set labels
+LABEL name="compliance-scanner-ee" \
+      version="1.0" \
+      description="Execution Environment for OpenSCAP compliance scanning"
+
+# Install EPEL for additional packages
+RUN dnf install -y epel-release && dnf clean all
+
+# Install system packages
+RUN dnf install -y \
+    ansible-core \
+    git \
+    openscap-scanner \
+    scap-security-guide \
+    openscap-utils \
+    python3-pip \
+    python3-lxml \
+    rsync \
+    && dnf clean all
+
+# Install Python requirements
+RUN pip3 install --no-cache-dir \
+    lxml>=4.9.0
+
+# Install Ansible collections
+RUN ansible-galaxy collection install \
+    ansible.posix \
+    community.general \
+    ansible.utils \
+    --collections-path /usr/share/ansible/collections
+
+# Create working directory
+RUN mkdir -p /runner/project && \
+    mkdir -p /tmp/oscap_results && \
+    mkdir -p /tmp/oscap_fetched
+
+# Set working directory
+WORKDIR /runner/project
+
+# Verify installations
+RUN oscap --version && \
+    oscap-ssh --help && \
+    ls -la /usr/share/xml/scap/ssg/content/
+
+# Default command
+CMD ["/bin/bash"]

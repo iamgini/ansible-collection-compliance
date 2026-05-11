@@ -1,0 +1,44 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    report_server_base_dir: /var/www/compliance-reports
+
+  tasks:
+    - name: Check if nginx is installed
+      ansible.builtin.package:
+        name: nginx
+        state: present
+      check_mode: true
+      register: nginx_check
+      failed_when: nginx_check.changed
+
+    - name: Check if nginx service is running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+      check_mode: true
+      register: nginx_service
+      failed_when: nginx_service.changed
+
+    - name: Verify report directory exists
+      ansible.builtin.stat:
+        path: "{{ report_server_base_dir }}"
+      register: report_dir
+      failed_when: not report_dir.stat.exists or not report_dir.stat.isdir
+
+    - name: Verify nginx config exists
+      ansible.builtin.stat:
+        path: /etc/nginx/conf.d/reports.conf
+      register: nginx_config
+      failed_when: not nginx_config.stat.exists
+
+    - name: Display verification results
+      ansible.builtin.debug:
+        msg:
+          - "Nginx installed: {{ not nginx_check.changed }}"
+          - "Nginx running: {{ not nginx_service.changed }}"
+          - "Report directory exists: {{ report_dir.stat.exists }}"
+          - "Nginx config exists: {{ nginx_config.stat.exists }}"

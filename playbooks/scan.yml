@@ -1,6 +1,6 @@
 ---
 - name: Run OpenSCAP compliance scan and store results
-  hosts: "{{ target_hosts | default('all') }}"
+  hosts: "{{ target_hosts | default('scan_targets') }}"
   gather_facts: true
   become: true
   collections:

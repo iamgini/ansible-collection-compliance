@@ -2,7 +2,7 @@
 # Default variables for report_server role
 
 # Report server directory configuration
-report_server_base_dir: "/var/reports"
+report_server_base_dir: "/var/www/compliance-reports"
 report_server_user: "nginx"
 report_server_group: "nginx"
 

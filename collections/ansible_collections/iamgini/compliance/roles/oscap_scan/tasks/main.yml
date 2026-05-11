@@ -2,21 +2,44 @@
 # Main task file for oscap_scan role
 # Orchestrates the complete scan workflow
 
-- name: Install OpenSCAP on target if needed
+# Execution mode: "local", "execution_environment", or "ee_agentless"
+- name: Set execution mode facts
+  ansible.builtin.set_fact:
+    _execution_mode: "{{ execution_mode | default('local') }}"
+    _is_local_mode: "{{ execution_mode | default('local') == 'local' }}"
+    _is_ee_ssh_mode: "{{ execution_mode | default('local') == 'execution_environment' }}"
+    _is_ee_agentless_mode: "{{ execution_mode | default('local') == 'ee_agentless' }}"
+    _oscap_scan_install: "{{ oscap_scan_install if execution_mode | default('local') == 'local' else false }}"
+
+- name: Install OpenSCAP on target if needed (local mode)
   ansible.builtin.include_tasks: install.yml
-  when: oscap_scan_install | bool
+  when:
+    - _is_local_mode
+    - _oscap_scan_install | bool
 
-- name: Prepare directories for scan
+- name: Prepare directories for scan (local mode)
   ansible.builtin.include_tasks: prepare.yml
+  when: _is_local_mode
 
-- name: Run OpenSCAP compliance scan
+- name: Run OpenSCAP compliance scan (local mode)
   ansible.builtin.include_tasks: scan.yml
+  when: _is_local_mode
 
-- name: Fetch scan results to controller
+- name: Run OpenSCAP compliance scan (EE mode via oscap-ssh)
+  ansible.builtin.include_tasks: scan_ee_mode.yml
+  when: _is_ee_ssh_mode
+
+- name: Run OpenSCAP compliance scan (EE agentless mode)
+  ansible.builtin.include_tasks: scan_ee_agentless.yml
+  when: _is_ee_agentless_mode
+
+- name: Fetch scan results to controller (local mode)
   ansible.builtin.include_tasks: fetch.yml
+  when: _is_local_mode
 
 - name: Push reports to report server
   ansible.builtin.include_tasks: push_report.yml
 
-- name: Cleanup temporary files
+- name: Cleanup temporary files (local mode)
   ansible.builtin.include_tasks: cleanup.yml
+  when: not _is_ee_mode
