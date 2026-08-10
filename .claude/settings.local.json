@@ -35,7 +35,14 @@
       "Bash(python3 *)",
       "WebSearch",
       "Bash(rpm -q scap-security-guide)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(mv scan.yml oscap_scan.yml)",
+      "Bash(mv parse_failures.yml oscap_parse.yml)",
+      "Bash(mv generate_remediation.yml oscap_generate_fix.yml)",
+      "Bash(mv remediate.yml oscap_remediate.yml)",
+      "Bash(mv rescan.yml oscap_rescan.yml)",
+      "Bash(mv parse_results oscap_parse)",
+      "Bash(mv generate_fix oscap_generate_fix)"
     ]
   }
 }

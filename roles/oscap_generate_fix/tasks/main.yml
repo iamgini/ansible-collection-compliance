@@ -1,5 +1,5 @@
 ---
-# Main task file for generate_fix role
+# Main task file for oscap_generate_fix role
 # Supports two generation modes: report_server and execution_environment
 
 - name: Validate generate_fix_mode value

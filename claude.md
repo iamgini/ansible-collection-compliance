@@ -27,17 +27,17 @@ compliance-as-code-framework/
 │   └── host_vars/
 │       └── <hostname>.yml            ← per-host exceptions (see exception schema)
 ├── playbooks/
-│   ├── scan.yml                      ← Phase 1: run oscap, fetch results
-│   ├── parse_failures.yml            ← Phase 2: extract failed rules to JSON
-│   ├── generate_remediation.yml      ← Phase 2: oscap generate fix → playbook
-│   ├── commit_playbook.yml           ← Phase 2: git commit generated playbook
-│   ├── remediate.yml                 ← Phase 3: wrapper that applies generated playbook
-│   └── rescan.yml                    ← Phase 3: post-remediation validation scan
+│   ├── oscap_scan.yml                ← Phase 1: run oscap, fetch results
+│   ├── oscap_parse.yml               ← Phase 2: extract failed rules to JSON
+│   ├── oscap_generate_fix.yml        ← Phase 2: oscap generate fix → playbook
+│   ├── commit_reports.yml            ← Phase 2: git commit generated playbook
+│   ├── oscap_remediate.yml           ← Phase 3: wrapper that applies generated playbook
+│   └── oscap_rescan.yml              ← Phase 3: post-remediation validation scan
 ├── roles/
 │   ├── report_server/                ← Phase 1: nginx setup, dir structure
 │   ├── oscap_scan/                   ← Phase 1: install oscap, run eval, fetch
-│   ├── parse_results/                ← Phase 2: ARF XML parser
-│   ├── generate_fix/                 ← Phase 2: oscap generate fix wrapper
+│   ├── oscap_parse/                  ← Phase 2: ARF XML parser
+│   ├── oscap_generate_fix/           ← Phase 2: oscap generate fix wrapper
 │   └── exception_handler/            ← Phase 3: reads host_vars, injects skip tags
 ├── profiles/
 │   ├── upstream/                     ← symlinks or copies of SSG profiles
@@ -101,7 +101,7 @@ Set in `group_vars/all.yml`:
 generate_fix_mode: "report_server"   # or "execution_environment"
 ```
 
-The `generate_fix` role handles both modes transparently — callers do not need to
+The `oscap_generate_fix` role handles both modes transparently — callers do not need to
 change playbooks when switching modes.
 
 ### Git as remediation playbook store — single public repo
@@ -236,12 +236,12 @@ Host-level `compliance_exception_reasons` override group-level for the same rule
 
 ```
 Workflow: compliance_full_cycle
-├── Node 1: job_template → scan           (runs scan.yml)
-├── Node 2: job_template → parse          (runs parse_failures.yml)
-├── Node 3: job_template → generate       (runs generate_remediation.yml)
+├── Node 1: job_template → scan           (runs oscap_scan.yml)
+├── Node 2: job_template → parse          (runs oscap_parse.yml)
+├── Node 3: job_template → generate       (runs oscap_generate_fix.yml)
 ├── Node 4: approval_node                 (human gate before any changes)
-├── Node 5: job_template → remediate      (runs remediate.yml)
-└── Node 6: job_template → rescan         (runs rescan.yml, validates improvement)
+├── Node 5: job_template → remediate      (runs oscap_remediate.yml)
+└── Node 6: job_template → rescan         (runs oscap_rescan.yml, validates improvement)
 ```
 
 Node 1–3 run on success of previous. Node 5 only runs after Node 4 is approved.
@@ -257,24 +257,24 @@ Files to create:
 - `execution-environment/execution-environment.yml`
 - `roles/oscap_scan/`
 - `roles/report_server/`
-- `playbooks/scan.yml`
+- `playbooks/oscap_scan.yml`
 - `inventory/group_vars/all.yml`
 
 ### Phase 2 (2–3 days) — Extraction + generation
 Goal: failed-rules.json written, remediation playbook committed to Git.
 Files to create:
-- `roles/parse_results/`
-- `roles/generate_fix/`
-- `playbooks/parse_failures.yml`
-- `playbooks/generate_remediation.yml`
-- `playbooks/commit_playbook.yml`
+- `roles/oscap_parse/`
+- `roles/oscap_generate_fix/`
+- `playbooks/oscap_parse.yml`
+- `playbooks/oscap_generate_fix.yml`
+- `playbooks/commit_reports.yml`
 
 ### Phase 3 (3–4 days) — Full AAP workflow
 Goal: end-to-end automated workflow with approval gate and exceptions.
 Files to create:
 - `roles/exception_handler/`
-- `playbooks/remediate.yml`
-- `playbooks/rescan.yml`
+- `playbooks/oscap_remediate.yml`
+- `playbooks/oscap_rescan.yml`
 - AAP workflow template definition (YAML export)
 - RBAC setup playbook
 
@@ -323,8 +323,8 @@ Files to create:
 - Handlers for service restarts only — not for compliance tasks
 
 ### File naming
-- Playbooks: `verb_noun.yml` (scan.yml, parse_failures.yml, generate_remediation.yml)
-- Roles: `noun_noun` (oscap_scan, report_server, parse_results)
+- Playbooks: `oscap_*.yml` for OpenSCAP workflow, unprefixed for shared (commit_reports.yml, setup_report_server.yml)
+- Roles: `oscap_*` for OpenSCAP-specific, unprefixed for shared (report_server, exception_handler)
 - Generated playbooks: `remediation-{date}.yml` inside `generated/{customer}/{host}/{scan_dir}/`
 
 ### Variables
@@ -350,7 +350,7 @@ Files to create:
 
 ### Molecule (Phase 2+)
 - Role-level testing under `tests/molecule/`
-- Test `parse_results` role with fixture ARF XML files (sample results, not real customer data)
+- Test `oscap_parse` role with fixture ARF XML files (sample results, not real customer data)
 - Test `exception_handler` role with known skip lists
 
 ---

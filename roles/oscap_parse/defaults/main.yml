@@ -1,5 +1,5 @@
 ---
-# Default variables for parse_results role
+# Default variables for oscap_parse role
 
 # XCCDF namespace for XML parsing
 xccdf_namespace:

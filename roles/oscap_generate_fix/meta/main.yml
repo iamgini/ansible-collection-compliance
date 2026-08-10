@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: generate_fix
+  role_name: oscap_generate_fix
   author: Gineesh Madapparambath
   description: Generate Ansible remediation playbook from OpenSCAP scan results
   company: Community

@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: parse_results
+  role_name: oscap_parse
   author: Gineesh Madapparambath
   description: Parse OpenSCAP ARF XML results and extract failed rules to JSON
   company: Community

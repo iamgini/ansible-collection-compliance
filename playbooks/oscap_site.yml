@@ -1,0 +1,21 @@
+---
+# Master playbook for full OpenSCAP compliance automation cycle
+# Imports all phases in sequence
+# Note: oscap_remediate.yml and oscap_rescan.yml are NOT included here
+# They run after human approval in the AAP workflow template
+
+- name: Phase 1 - Run compliance scan
+  ansible.builtin.import_playbook: oscap_scan.yml
+
+- name: Phase 2 - Parse scan failures
+  ansible.builtin.import_playbook: oscap_parse.yml
+
+- name: Phase 3 - Generate remediation content
+  ansible.builtin.import_playbook: oscap_generate_fix.yml
+
+- name: Phase 4 - Commit remediation content to Git
+  ansible.builtin.import_playbook: commit_reports.yml
+
+# Manual execution after approval:
+# ansible-playbook playbooks/oscap_remediate.yml -e "target_hosts=<group_or_host>"
+# ansible-playbook playbooks/oscap_rescan.yml -e "target_hosts=<group_or_host>"

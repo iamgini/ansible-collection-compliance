@@ -1,5 +1,5 @@
 ---
-# Default variables for generate_fix role
+# Default variables for oscap_generate_fix role
 
 # Fix generation mode: "report_server" or "execution_environment"
 generate_fix_mode: "report_server"

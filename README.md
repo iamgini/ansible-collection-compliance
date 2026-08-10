@@ -83,7 +83,7 @@ ansible-playbook playbooks/setup_report_server.yml -i hosts.ini
 ### 4. Run Your First Scan
 
 ```bash
-ansible-playbook playbooks/scan.yml -i hosts.ini
+ansible-playbook playbooks/oscap_scan.yml -i hosts.ini
 ```
 
 ### 5. View Results
@@ -96,18 +96,19 @@ Browse to: `http://report-server.internal/reports/<customer_id>/<hostname>/<date
 iamgini.compliance/
 ├── roles/
 │   ├── oscap_scan/          # OpenSCAP scanning on targets
+│   ├── oscap_parse/         # ARF XML parsing and analysis
+│   ├── oscap_generate_fix/  # Remediation playbook generation
 │   ├── report_server/       # nginx-based report server setup
-│   ├── parse_results/       # ARF XML parsing and analysis
-│   ├── generate_fix/        # Remediation playbook generation
 │   └── exception_handler/   # Exception and deviation management
 ├── playbooks/
-│   ├── site.yml            # Master playbook (all phases)
-│   ├── scan.yml            # Phase 1: Scan execution
-│   ├── parse_failures.yml  # Phase 2: Parse results
-│   ├── generate_remediation.yml  # Phase 2: Generate fix
-│   ├── commit_playbook.yml # Phase 2: Git commit
-│   ├── remediate.yml       # Phase 3: Apply remediation
-│   └── rescan.yml          # Phase 3: Validation scan
+│   ├── oscap_site.yml       # Master playbook (all phases)
+│   ├── oscap_scan.yml       # Phase 1: Scan execution
+│   ├── oscap_parse.yml      # Phase 2: Parse results
+│   ├── oscap_generate_fix.yml  # Phase 2: Generate fix
+│   ├── oscap_remediate.yml  # Phase 3: Apply remediation
+│   ├── oscap_rescan.yml     # Phase 3: Validation scan
+│   ├── commit_reports.yml   # Git commit reports
+│   └── setup_report_server.yml  # Report server setup
 ├── inventory/
 │   ├── group_vars/         # Group-level configuration
 │   └── host_vars/          # Host-level exceptions
@@ -357,30 +358,30 @@ inventory/
 Create an AAP workflow template with these nodes:
 
 ```
-Node 1: job_template → scan
-Node 2: job_template → parse_failures
-Node 3: job_template → generate_remediation
+Node 1: job_template → oscap_scan
+Node 2: job_template → oscap_parse
+Node 3: job_template → oscap_generate_fix
 Node 4: approval_node (APPROVAL GATE - human review required)
-Node 5: job_template → remediate
-Node 6: job_template → rescan
+Node 5: job_template → oscap_remediate
+Node 6: job_template → oscap_rescan
 ```
 
 ### Job Template Configuration
 
 Each playbook becomes a job template:
 
-- **scan**: `playbooks/scan.yml`
-- **parse_failures**: `playbooks/parse_failures.yml`
-- **generate_remediation**: `playbooks/generate_remediation.yml`
-- **remediate**: `playbooks/remediate.yml`
-- **rescan**: `playbooks/rescan.yml`
+- **oscap_scan**: `playbooks/oscap_scan.yml`
+- **oscap_parse**: `playbooks/oscap_parse.yml`
+- **oscap_generate_fix**: `playbooks/oscap_generate_fix.yml`
+- **oscap_remediate**: `playbooks/oscap_remediate.yml`
+- **oscap_rescan**: `playbooks/oscap_rescan.yml`
 
 ### Credentials
 
 Required credentials in AAP:
 
 - **Machine Credential**: SSH access to managed nodes
-- **SCM Credential**: Git repository access (for commit_playbook.yml)
+- **SCM Credential**: Git repository access (for commit_reports.yml)
 - **Report Server Credential**: SSH access to report server
 
 ## Testing
@@ -414,7 +415,7 @@ molecule test
 ansible-playbook --syntax-check generated/<customer>/<host>/<date>/remediation.yml
 
 # Check mode (no changes)
-ansible-playbook playbooks/remediate.yml --check
+ansible-playbook playbooks/oscap_remediate.yml --check
 ```
 
 ## Contributing
@@ -491,7 +492,7 @@ ComplianceAsCode/content (single source of truth)
                       • freshness tied to GitHub release
 ```
 
-Use the RedHatOfficial roles when you want a **repeatable, version-controlled remediation baseline** with granular control. Use `oscap generate fix` (via `generate_remediation.yml`) when you want **targeted remediation** of only the rules that failed a specific scan.
+Use the RedHatOfficial roles when you want a **repeatable, version-controlled remediation baseline** with granular control. Use `oscap generate fix` (via `oscap_generate_fix.yml`) when you want **targeted remediation** of only the rules that failed a specific scan.
 
 #### Available Roles
 
@@ -538,10 +539,10 @@ Each task is tagged with cross-framework identifiers (CCE, DISA STIG, NIST 800-5
 
 ```bash
 # Apply only DISA STIG-mapped controls
-ansible-playbook remediate.yml --tags "DISA-STIG-RHEL-09-255045"
+ansible-playbook oscap_remediate.yml --tags "DISA-STIG-RHEL-09-255045"
 
 # Dry-run to see what would change
-ansible-playbook remediate.yml --check
+ansible-playbook oscap_remediate.yml --check
 ```
 
 #### Using with This Collection
@@ -550,17 +551,17 @@ This collection uses `oscap generate fix` as the **default remediation approach*
 
 | Approach | When to use |
 |----------|-------------|
-| `generate_remediation.yml` (oscap generate fix) **default** | Targeted fix of only failed rules from a scan; quick, no extra roles needed |
+| `oscap_generate_fix.yml` (oscap generate fix) **default** | Targeted fix of only failed rules from a scan; quick, no extra roles needed |
 | RedHatOfficial roles (optional) | Full baseline enforcement on fresh builds; repeatable across environments; granular per-control toggles |
 
 Both approaches fit the same scan/remediate/rescan workflow:
 
 ```
-1. scan.yml               (scan with OpenSCAP)
-2. parse_failures.yml      (analyze results)
-3a. generate_remediation.yml  ──▶  targeted fix from scan results (default)
-3b. RedHatOfficial.rhel9_cis  ──▶  full baseline enforcement (optional)
-4. rescan.yml              (validate improvement)
+1. oscap_scan.yml            (scan with OpenSCAP)
+2. oscap_parse.yml           (analyze results)
+3a. oscap_generate_fix.yml   ──▶  targeted fix from scan results (default)
+3b. RedHatOfficial.rhel9_cis ──▶  full baseline enforcement (optional)
+4. oscap_rescan.yml          (validate improvement)
 ```
 
 Install the roles:

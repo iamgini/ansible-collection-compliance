@@ -1,5 +1,5 @@
 ---
-# Main task file for parse_results role
+# Main task file for oscap_parse role
 # Parse ARF XML and extract failed rules to JSON
 
 - name: Read result.xml from report server
