@@ -14,4 +14,4 @@
         fail_msg: "Required variable report_server_base_dir is missing - check group_vars/all.yml"
 
   roles:
-    - role: report_server
+    - role: iamgini.compliance.report_server

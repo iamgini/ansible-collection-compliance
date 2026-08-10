@@ -42,4 +42,6 @@
 
 - name: Cleanup temporary files (local mode)
   ansible.builtin.include_tasks: cleanup.yml
-  when: not _is_ee_mode
+  when:
+    - not _is_ee_ssh_mode
+    - not _is_ee_agentless_mode

@@ -1,6 +1,11 @@
 ---
+# NOTE: Run this playbook with --skip-tags to exclude specific rules.
+# The exception_handler role populates effective_skip_rules; pass them
+# on the CLI:  -e "skip_tags_csv={{ effective_skip_rules | join(',') }}"
+#              --skip-tags "{{ skip_tags_csv }}"
+# Or run after generate_remediation.yml so generate_fix_playbook_path is set.
 - name: Apply generated compliance remediation with exception handling
-  hosts: "{{ target_hosts | default('all') }}"
+  hosts: "{{ target_hosts | default('scan_targets') }}"
   gather_facts: true
   become: true
   collections:
@@ -11,6 +16,11 @@
       ansible.builtin.include_role:
         name: iamgini.compliance.exception_handler
 
+    - name: Set default remediation playbook path if not already set
+      ansible.builtin.set_fact:
+        generate_fix_playbook_path: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/{{ remediation_final_filename | default('remediation.yml') }}"
+      when: generate_fix_playbook_path is not defined
+
   tasks:
     - name: Display exception information
       ansible.builtin.debug:
@@ -19,11 +29,22 @@
           Exceptions active: {{ effective_skip_rules | length }}.
           Generated playbook: {{ generate_fix_playbook_path }}
 
+    - name: Verify remediation playbook exists
+      ansible.builtin.stat:
+        path: "{{ generate_fix_playbook_path }}"
+      register: _remediation_playbook_stat
+      delegate_to: "{{ report_server_host }}"
+
+    - name: Fail if remediation playbook not found
+      ansible.builtin.fail:
+        msg: >
+          Remediation playbook not found at {{ generate_fix_playbook_path }}.
+          Run generate_remediation.yml first.
+      when: not _remediation_playbook_stat.stat.exists
+
     - name: Apply generated remediation playbook
       ansible.builtin.include_tasks:
         file: "{{ generate_fix_playbook_path }}"
-      vars:
-        ansible_skip_tags: "{{ effective_skip_rules }}"
       when: parse_results_failed_count | default(0) | int > 0
 
     - name: Display completion message

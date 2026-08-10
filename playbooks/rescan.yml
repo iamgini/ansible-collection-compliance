@@ -1,6 +1,6 @@
 ---
 - name: Post-remediation validation scan
-  hosts: "{{ target_hosts | default('all') }}"
+  hosts: "{{ target_hosts | default('scan_targets') }}"
   gather_facts: true
   become: true
   collections:

@@ -1,4 +1,0 @@
-openscap-scanner [platform:rpm]
-scap-security-guide [platform:rpm]
-openscap-utils [platform:rpm]
-git [platform:rpm platform:dpkg]

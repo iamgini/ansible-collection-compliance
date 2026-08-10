@@ -6,10 +6,14 @@ generated/
 *.tar.gz
 *.whl
 
+# ansible-builder context (generated)
+context/
+
 # Ansible artifacts
 *.retry
 .ansible/
 ansible.log
+ansible-navigator.log
 /tmp/
 
 # Playbook artifacts

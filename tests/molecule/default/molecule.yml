@@ -30,6 +30,11 @@ provisioner:
         customer_id: molecule-test
         report_server_host: localhost
         report_server_base_dir: /tmp/reports
+        cis_profile: "xccdf_org.ssgproject.content_profile_cis_level2_server"
+        ssg_datastream: "/usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml"
+        scan_dir: "molecule-scan"
+        execution_mode: "local"
+        linux_family: "rhel"
 
 verifier:
   name: ansible

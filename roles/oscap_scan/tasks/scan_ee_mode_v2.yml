@@ -23,9 +23,19 @@
     dest: "{{ target_temp_dir.path }}/datastream.xml"
     mode: '0644'
 
-- name: Run oscap evaluation via script from EE
-  ansible.builtin.script:
-    cmd: /usr/bin/oscap xccdf eval --profile {{ cis_profile }} --results {{ target_temp_dir.path }}/result.xml --report {{ target_temp_dir.path }}/report.html {{ target_temp_dir.path }}/datastream.xml
+- name: Run oscap evaluation on target
+  ansible.builtin.command:
+    argv:
+      - "{{ oscap_binary }}"
+      - xccdf
+      - eval
+      - --profile
+      - "{{ cis_profile }}"
+      - --results
+      - "{{ target_temp_dir.path }}/result.xml"
+      - --report
+      - "{{ target_temp_dir.path }}/report.html"
+      - "{{ target_temp_dir.path }}/datastream.xml"
   register: oscap_scan_result
   failed_when: oscap_scan_result.rc not in [0, 2]
   changed_when: false

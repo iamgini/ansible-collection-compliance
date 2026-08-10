@@ -9,11 +9,11 @@
   delegate_to: localhost
 
 - name: Fetch result.xml from report server to EE
-  ansible.builtin.copy:
+  ansible.builtin.fetch:
     src: "{{ report_server_base_dir }}/{{ customer_id }}/{{ inventory_hostname }}/{{ scan_dir }}/result.xml"
     dest: "{{ ee_temp_dir.path }}/result.xml"
-    mode: '0644'
-  delegate_to: localhost
+    flat: true
+  delegate_to: "{{ report_server_host }}"
 
 - name: Generate Ansible remediation playbook in EE
   ansible.builtin.shell:

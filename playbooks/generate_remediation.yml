@@ -1,6 +1,6 @@
 ---
 - name: Generate targeted Ansible remediation playbook from scan results
-  hosts: "{{ target_hosts | default('all') }}"
+  hosts: "{{ target_hosts | default('scan_targets') }}"
   gather_facts: true
   become: false
   collections:

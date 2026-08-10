@@ -21,7 +21,7 @@ A community Ansible collection for automated security compliance scanning and re
 |----------|--------|-------|
 | Linux (RHEL family) | ✅ Supported | RHEL 8, 9, Rocky, AlmaLinux, Fedora |
 | Linux (Debian family) | ✅ Supported | Ubuntu 22.04+, Debian 11+ |
-| Windows | 🚧 Planned | Phase 4 - Different toolchain |
+| Windows | 🔗 See [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) | CIS & DISA STIG for Windows Server 2019/2022/2025 |
 | Network Devices | 🚧 Planned | Future phase |
 
 ## Architecture
@@ -441,6 +441,154 @@ Contributions are welcome! This is a community-driven project.
 - [OpenSCAP Documentation](https://www.open-scap.org/resources/documentation/)
 - [Ansible Collection Development](https://docs.ansible.com/ansible/latest/dev_guide/developing_collections.html)
 
+## Related Collections
+
+### Windows Compliance: `infra.windows_ops`
+
+For Windows Server compliance automation, use the [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) validated content collection. It provides CIS Benchmark and DISA STIG enforcement for Windows Server 2019, 2022, and 2025.
+
+| Role | Description |
+|------|-------------|
+| `infra.windows_ops.windows_manage_cis` | CIS Benchmark compliance (v3.0.0 for 2019/2022, v1.0.0 for 2025) |
+| `infra.windows_ops.windows_manage_stig` | DISA STIG compliance with 100% coverage (automated + documented manual controls) |
+
+Key features: multi-version auto-detection, drift detection via check mode, JSON/HTML compliance reporting, and support for modern security features (DNS-over-HTTPS, SMB QUIC, TLS 1.3).
+
+```bash
+# Install from Automation Hub (requires Red Hat subscription)
+ansible-galaxy collection install infra.windows_ops
+
+# Or install from GitHub
+ansible-galaxy collection install git+https://github.com/redhat-cop/infra.windows_ops.git
+```
+
+See the [Automation Hub listing](https://console.redhat.com/ansible/automation-hub/collections/validated/infra/windows_ops/details) (login required) or the [GitHub repository](https://github.com/redhat-cop/infra.windows_ops) for full documentation.
+
+### Linux CIS Remediation: RedHatOfficial Roles
+
+The [RedHatOfficial](https://github.com/RedHatOfficial) GitHub org publishes CIS Benchmark remediation roles **auto-generated from the [ComplianceAsCode](https://github.com/ComplianceAsCode/content) project** — the same upstream source that produces the SSG datastream files (`ssg-rhel9-ds.xml`) and the `oscap generate fix` output used by this collection.
+
+#### Relationship to `oscap generate fix`
+
+Both the RedHatOfficial roles and `oscap generate fix` produce Ansible remediation from the **same ComplianceAsCode remediation snippets**. The difference is timing and packaging:
+
+```
+ComplianceAsCode/content (single source of truth)
+        │
+        │  same Ansible remediation snippets
+        │
+        ├──▶ SSG Datastream (ssg-rhel9-ds.xml)
+        │       └──▶ oscap generate fix ──▶ raw playbook AT RUNTIME
+        │             • only failed rules (targeted to scan results)
+        │             • no toggle variables, no tags
+        │             • freshness tied to scap-security-guide RPM
+        │
+        └──▶ RedHatOfficial roles (ansible-role-rhel9-cis, etc.)
+                └──▶ structured role AT BUILD TIME
+                      • all rules in the profile (full coverage)
+                      • per-control boolean toggles (400-570 variables)
+                      • cross-framework tags (CCE, STIG, NIST, PCI-DSS)
+                      • freshness tied to GitHub release
+```
+
+Use the RedHatOfficial roles when you want a **repeatable, version-controlled remediation baseline** with granular control. Use `oscap generate fix` (via `generate_remediation.yml`) when you want **targeted remediation** of only the rules that failed a specific scan.
+
+#### Available Roles
+
+| Role | Platform | CIS Benchmark | Profile |
+|------|----------|---------------|---------|
+| [`ansible-role-rhel10-cis`](https://github.com/RedHatOfficial/ansible-role-rhel10-cis) | RHEL 10 | v1.0.1 | L2 Server |
+| [`ansible-role-rhel10-cis_server_l1`](https://github.com/RedHatOfficial/ansible-role-rhel10-cis_server_l1) | RHEL 10 | v1.0.1 | L1 Server |
+| [`ansible-role-rhel10-cis_workstation_l1`](https://github.com/RedHatOfficial/ansible-role-rhel10-cis_workstation_l1) | RHEL 10 | v1.0.1 | L1 Workstation |
+| [`ansible-role-rhel10-cis_workstation_l2`](https://github.com/RedHatOfficial/ansible-role-rhel10-cis_workstation_l2) | RHEL 10 | v1.0.1 | L2 Workstation |
+| [`ansible-role-rhel9-cis`](https://github.com/RedHatOfficial/ansible-role-rhel9-cis) | RHEL 9 | v2.0.0 | L2 Server |
+| [`ansible-role-rhel9-cis_server_l1`](https://github.com/RedHatOfficial/ansible-role-rhel9-cis_server_l1) | RHEL 9 | v2.0.0 | L1 Server |
+| [`ansible-role-rhel9-cis_workstation_l1`](https://github.com/RedHatOfficial/ansible-role-rhel9-cis_workstation_l1) | RHEL 9 | v2.0.0 | L1 Workstation |
+| [`ansible-role-rhel9-cis_workstation_l2`](https://github.com/RedHatOfficial/ansible-role-rhel9-cis_workstation_l2) | RHEL 9 | v2.0.0 | L2 Workstation |
+| [`ansible-role-rhel8-cis`](https://github.com/RedHatOfficial/ansible-role-rhel8-cis) | RHEL 8 | v4.0.0 | L2 Server |
+| [`ansible-role-rhel8-cis_server_l1`](https://github.com/RedHatOfficial/ansible-role-rhel8-cis_server_l1) | RHEL 8 | v4.0.0 | L1 Server |
+| [`ansible-role-rhel8-cis_workstation_l1`](https://github.com/RedHatOfficial/ansible-role-rhel8-cis_workstation_l1) | RHEL 8 | v4.0.0 | L1 Workstation |
+| [`ansible-role-rhel8-cis_workstation_l2`](https://github.com/RedHatOfficial/ansible-role-rhel8-cis_workstation_l2) | RHEL 8 | v4.0.0 | L2 Workstation |
+| [`ansible-role-rhel7-cis`](https://github.com/RedHatOfficial/ansible-role-rhel7-cis) | RHEL 7 | - | L2 Server |
+
+#### How They Work
+
+Every control is individually toggleable via a boolean variable that matches the ComplianceAsCode rule ID:
+
+```yaml
+# defaults/main.yml (excerpt)
+sshd_disable_root_login: true
+package_aide_installed: true
+accounts_tmout: true
+sysctl_net_ipv4_ip_forward: true
+```
+
+Bulk filtering is also available via severity, disruption, and strategy toggles:
+
+```yaml
+# Disable all high-disruption controls for a safe first pass
+high_disruption: false
+reboot_required: false
+
+# Or disable by severity
+low_severity: false
+```
+
+Each task is tagged with cross-framework identifiers (CCE, DISA STIG, NIST 800-53, PCI-DSS), enabling targeted runs:
+
+```bash
+# Apply only DISA STIG-mapped controls
+ansible-playbook remediate.yml --tags "DISA-STIG-RHEL-09-255045"
+
+# Dry-run to see what would change
+ansible-playbook remediate.yml --check
+```
+
+#### Using with This Collection
+
+This collection uses `oscap generate fix` as the **default remediation approach** — it generates a playbook targeting only the rules that failed a specific scan, with no extra dependencies. The RedHatOfficial roles are an **optional alternative** for users who prefer full baseline enforcement with per-control toggles.
+
+| Approach | When to use |
+|----------|-------------|
+| `generate_remediation.yml` (oscap generate fix) **default** | Targeted fix of only failed rules from a scan; quick, no extra roles needed |
+| RedHatOfficial roles (optional) | Full baseline enforcement on fresh builds; repeatable across environments; granular per-control toggles |
+
+Both approaches fit the same scan/remediate/rescan workflow:
+
+```
+1. scan.yml               (scan with OpenSCAP)
+2. parse_failures.yml      (analyze results)
+3a. generate_remediation.yml  ──▶  targeted fix from scan results (default)
+3b. RedHatOfficial.rhel9_cis  ──▶  full baseline enforcement (optional)
+4. rescan.yml              (validate improvement)
+```
+
+Install the roles:
+
+```bash
+# Install for your RHEL version
+ansible-galaxy install RedHatOfficial.rhel9_cis
+ansible-galaxy install RedHatOfficial.rhel8_cis
+ansible-galaxy install RedHatOfficial.rhel10_cis
+```
+
+Map your exception list to role variables:
+
+```yaml
+# group_vars/rhel9_cis_l2.yml
+# Disable specific controls that match your compliance_skip_rules
+sshd_disable_root_login: false      # Exception: jump hosts require root SSH
+service_nfs_disabled: false          # Exception: NFS required for shared data
+```
+
+#### Key Characteristics
+
+- **Source**: Auto-generated from ComplianceAsCode — same rules OpenSCAP evaluates
+- **Scale**: 400-570+ controls per role (RHEL 9 L2 has 570 toggle variables)
+- **Dependencies**: `ansible.posix`, `community.general`
+- **License**: BSD-3-Clause (RHEL 7/8/9), MIT-0 (RHEL 10)
+- **Check mode**: Supported — discovery tasks force-run, remediation tasks respect `--check`
+
 ## License
 
 Apache License 2.0 - See [LICENSE](LICENSE) file for details.
@@ -455,8 +603,10 @@ Apache License 2.0 - See [LICENSE](LICENSE) file for details.
 
 This collection builds on:
 
-- [ComplianceAsCode](https://github.com/ComplianceAsCode/content) - Open-source security content
+- [ComplianceAsCode](https://github.com/ComplianceAsCode/content) - Open-source security content (upstream for SSG and RedHatOfficial roles)
 - [OpenSCAP](https://www.open-scap.org/) - SCAP scanner implementation
+- [RedHatOfficial CIS/STIG roles](https://github.com/RedHatOfficial) - Pre-built remediation roles for RHEL 7/8/9/10
+- [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) - Windows CIS & STIG compliance (companion collection)
 - Ansible community collections and best practices
 
 ---

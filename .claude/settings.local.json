@@ -31,7 +31,11 @@
       "Bash(tee /tmp/scan-run.log)",
       "Bash(cp -v roles/oscap_scan/tasks/scan_ee_agentless.yml collections/ansible_collections/iamgini/compliance/roles/oscap_scan/tasks/scan_ee_agentless.yml)",
       "Bash(tee /tmp/scan-agentless.log)",
-      "Bash(awk '{print $3}')"
+      "Bash(awk '{print $3}')",
+      "Bash(python3 *)",
+      "WebSearch",
+      "Bash(rpm -q scap-security-guide)",
+      "Bash(git rm *)"
     ]
   }
 }
