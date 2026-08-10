@@ -21,7 +21,7 @@ A community Ansible collection for automated security compliance scanning and re
 |----------|--------|-------|
 | Linux (RHEL family) | ✅ Supported | RHEL 8, 9, Rocky, AlmaLinux, Fedora |
 | Linux (Debian family) | ✅ Supported | Ubuntu 22.04+, Debian 11+ |
-| Windows | 🔗 See [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) | CIS & DISA STIG for Windows Server 2019/2022/2025 |
+| Windows | 🚧 TODO | Wrapper playbooks for [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) CIS & STIG (2019/2022/2025) |
 | Network Devices | 🚧 Planned | Future phase |
 
 ## Architecture
@@ -108,7 +108,9 @@ iamgini.compliance/
 │   ├── oscap_remediate.yml  # Phase 3: Apply remediation
 │   ├── oscap_rescan.yml     # Phase 3: Validation scan
 │   ├── commit_reports.yml   # Git commit reports
-│   └── setup_report_server.yml  # Report server setup
+│   ├── setup_report_server.yml  # Report server setup
+│   ├── windows_cis.yml      # TODO: Windows CIS using infra.windows_ops
+│   └── windows_stig.yml     # TODO: Windows STIG using infra.windows_ops
 ├── inventory/
 │   ├── group_vars/         # Group-level configuration
 │   └── host_vars/          # Host-level exceptions
