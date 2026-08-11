@@ -1,0 +1,93 @@
+---
+# Windows CIS Benchmark Compliance Playbook
+# Uses infra.windows_ops.windows_manage_cis role
+# Supports: Windows Server 2019, 2022, 2025
+#
+# Usage examples:
+#   Full hardening (Level 1):
+#     ansible-playbook playbooks/windows_cis.yml
+#
+#   Drift detection only (no changes):
+#     ansible-playbook playbooks/windows_cis.yml --check
+#
+#   Level 2 profile:
+#     ansible-playbook playbooks/windows_cis.yml -e "windows_cis_profile='Level 2'"
+#
+#   Skip specific rules:
+#     ansible-playbook playbooks/windows_cis.yml -e '{"windows_cis_skip_rules": ["1.1.1", "5.1"]}'
+#
+#   Run only specific rules:
+#     ansible-playbook playbooks/windows_cis.yml -e '{"windows_cis_only_rules": ["1.1.1", "1.1.2", "1.1.3"]}'
+#
+#   Run only specific categories:
+#     ansible-playbook playbooks/windows_cis.yml --tags password_policies
+#     ansible-playbook playbooks/windows_cis.yml --tags windows_firewall
+#
+#   Skip a category:
+#     ansible-playbook playbooks/windows_cis.yml --skip-tags system_services
+#
+#   HTML report:
+#     ansible-playbook playbooks/windows_cis.yml -e "windows_cis_report_format=html"
+
+- name: Windows CIS Benchmark Compliance
+  hosts: "{{ target_hosts | default('windows_targets') }}"
+  gather_facts: false
+
+  vars:
+    # CIS profile: "Level 1" or "Level 2"
+    windows_cis_profile: "Level 1"
+
+    # Rule exceptions — skip these CIS rule IDs
+    # Override per-group in group_vars/windows_cis.yml or per-host in host_vars/
+    # Uses same pattern as Linux compliance_skip_rules
+    windows_cis_skip_rules: "{{ compliance_skip_rules | default([]) }}"
+
+    # Run only these rules (empty = all rules). Takes precedence over skip_rules.
+    windows_cis_only_rules: []
+
+    # Categories to execute (all Level 1 categories by default)
+    windows_cis_categories:
+      - password_policies
+      - account_lockout
+      - user_rights_assignment
+      - security_options
+      - system_services
+      - advanced_audit_policies
+      - event_log
+      - administrative_templates
+      - windows_firewall
+      - additional_registry
+
+    # Reporting
+    windows_cis_report: true
+    windows_cis_report_format: "json"
+    windows_cis_report_path: "C:\\temp\\cis_compliance_report"
+
+    # Fail the playbook if compliance score drops below threshold
+    windows_cis_fail_on_non_compliance: false
+    windows_cis_compliance_threshold: 100
+
+  tasks:
+    - name: Display execution parameters
+      ansible.builtin.debug:
+        msg:
+          - "Target: {{ inventory_hostname }}"
+          - "Profile: {{ windows_cis_profile }}"
+          - "Mode: {{ 'Drift detection (check mode)' if ansible_check_mode else 'Apply hardening' }}"
+          - "Skip rules: {{ windows_cis_skip_rules | default([]) | length }} rule(s)"
+          - "Only rules: {{ windows_cis_only_rules | length }} rule(s) {{ '(all)' if windows_cis_only_rules | length == 0 else '' }}"
+
+    - name: Apply CIS benchmark hardening
+      ansible.builtin.include_role:
+        name: infra.windows_ops.windows_manage_cis
+      vars:
+        windows_manage_cis_profile: "{{ windows_cis_profile }}"
+        windows_manage_cis_skip_rules: "{{ windows_cis_skip_rules }}"
+        windows_manage_cis_only_rules: "{{ windows_cis_only_rules }}"
+        windows_manage_cis_categories: "{{ windows_cis_categories }}"
+        windows_manage_cis_generate_report: "{{ windows_cis_report }}"
+        windows_manage_cis_report_format: "{{ windows_cis_report_format }}"
+        windows_manage_cis_report_path: "{{ windows_cis_report_path }}"
+        windows_manage_cis_report_output_dir: "{{ windows_cis_report_path }}"
+        windows_manage_cis_fail_on_non_compliance: "{{ windows_cis_fail_on_non_compliance }}"
+        windows_manage_cis_compliance_threshold: "{{ windows_cis_compliance_threshold }}"

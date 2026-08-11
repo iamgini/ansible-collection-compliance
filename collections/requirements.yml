@@ -4,7 +4,16 @@ collections:
     version: ">=1.5.0"
   - name: community.general
     version: ">=8.0.0"
+  - name: infra.windows_ops
+    version: ">=2.0.0"
+  - name: ansible.windows
+    version: ">=3.0.0"
+  - name: community.windows
+    version: ">=3.0.0"
 
 # Collection dependencies:
 # - ansible.posix: provides firewalld, sysctl, mount, selinux modules
 # - community.general: provides xml module for ARF parsing, git_config for repository management
+# - infra.windows_ops: provides windows_manage_cis and windows_manage_stig roles
+# - ansible.windows: required by infra.windows_ops
+# - community.windows: required by infra.windows_ops

@@ -1,0 +1,29 @@
+---
+# Group variables for all Windows targets
+# Applies to both CIS and STIG playbooks
+#
+# Exception handling:
+#   Group-level: add compliance_skip_rules here (applies to ALL Windows hosts)
+#   Host-level:  add compliance_skip_rules in host_vars/<hostname>.yml (per-host overrides)
+#   The exception_handler role merges both levels before applying.
+
+target_platform: "windows"
+
+# Rule exceptions — skip these rules across all Windows hosts
+# CIS uses rule IDs like "1.1.1", STIG uses "V-254238"
+compliance_skip_rules: []
+
+# Exception documentation (auditable)
+compliance_exception_reasons: {}
+# Example:
+#   "5.1":
+#     reason: "Print Spooler required for print server role"
+#     approved_by: "security-lead@example.com"
+#     approved_date: "2026-08-01"
+#     review_date: "2027-02-01"
+
+# WinRM connection defaults (override per host/group as needed)
+# ansible_connection: winrm
+# ansible_winrm_transport: ntlm
+# ansible_winrm_server_cert_validation: ignore
+# ansible_port: 5986

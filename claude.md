@@ -32,7 +32,9 @@ compliance-as-code-framework/
 │   ├── oscap_generate_fix.yml        ← Phase 2: oscap generate fix → playbook
 │   ├── commit_reports.yml            ← Phase 2: git commit generated playbook
 │   ├── oscap_remediate.yml           ← Phase 3: wrapper that applies generated playbook
-│   └── oscap_rescan.yml              ← Phase 3: post-remediation validation scan
+│   ├── oscap_rescan.yml              ← Phase 3: post-remediation validation scan
+│   ├── windows_cis.yml               ← Phase 4: Windows CIS via infra.windows_ops
+│   └── windows_stig.yml              ← Phase 4: Windows STIG via infra.windows_ops
 ├── roles/
 │   ├── report_server/                ← Phase 1: nginx setup, dir structure
 │   ├── oscap_scan/                   ← Phase 1: install oscap, run eval, fetch
@@ -278,19 +280,24 @@ Files to create:
 - AAP workflow template definition (YAML export)
 - RBAC setup playbook
 
-### Phase 4 (ongoing) — Service hardening
+### Phase 4 (implemented) — Windows compliance
+- Windows CIS/STIG playbooks wrapping `infra.windows_ops` collection
+- `playbooks/windows_cis.yml` — CIS Benchmark (Level 1/2, Server 2019/2022/2025)
+- `playbooks/windows_stig.yml` — DISA STIG (Server 2019/2022/2025)
+- Same `compliance_skip_rules` exception pattern as Linux
+
+### Phase 5 (ongoing) — Service hardening
 - ASEAN regulatory profiles under `profiles/overlay/`
 - AI-authored internal rules (Claude Code assisted)
 - Compliance dashboard
-- Windows content track (separate pipeline, no OpenSCAP)
 
 ---
 
 ## Known limitations and constraints
 
 ### OpenSCAP / ComplianceAsCode
-- **Windows support removed** from OpenSCAP/SSG. Windows is a separate track (Phase 4+).
-  Source of truth for Windows: NIST / DISA / CIS directly, not SSG.
+- **Windows support removed** from OpenSCAP/SSG. Windows uses `infra.windows_ops` collection instead.
+  Source of truth for Windows: CIS/DISA benchmarks via `infra.windows_ops` roles.
 - Some CIS rules don't map 1:1 to SCAP — manual Ansible tasks may be needed.
 - Remediation content is strongest on RHEL. Community Linux (Ubuntu, Debian) coverage varies.
 - `scap-security-guide` RPM version must match the datastream version — pin explicitly in EE.

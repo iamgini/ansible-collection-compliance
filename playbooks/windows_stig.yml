@@ -1,0 +1,98 @@
+---
+# Windows DISA STIG Compliance Playbook
+# Uses infra.windows_ops.windows_manage_stig role
+# Supports: Windows Server 2019, 2022, 2025
+#
+# Usage examples:
+#   Full STIG hardening:
+#     ansible-playbook playbooks/windows_stig.yml
+#
+#   Drift detection only (no changes):
+#     ansible-playbook playbooks/windows_stig.yml --check
+#
+#   Skip specific STIG rules:
+#     ansible-playbook playbooks/windows_stig.yml -e '{"windows_stig_skip_rules": ["V-254238", "V-254292"]}'
+#
+#   Run only specific rules:
+#     ansible-playbook playbooks/windows_stig.yml -e '{"windows_stig_only_rules": ["V-254238", "V-254239"]}'
+#
+#   Run only specific categories:
+#     ansible-playbook playbooks/windows_stig.yml --tags account_policies
+#     ansible-playbook playbooks/windows_stig.yml --tags audit_policies
+#
+#   Run only high-severity (CAT I) controls:
+#     ansible-playbook playbooks/windows_stig.yml --tags cat_i
+#
+#   Skip a category:
+#     ansible-playbook playbooks/windows_stig.yml --skip-tags system_services
+#
+#   HTML report with enforcement:
+#     ansible-playbook playbooks/windows_stig.yml \
+#       -e "windows_stig_report_format=html" \
+#       -e "windows_stig_fail_on_non_compliance=true"
+
+- name: Windows DISA STIG Compliance
+  hosts: "{{ target_hosts | default('windows_targets') }}"
+  gather_facts: false
+
+  vars:
+    # Rule exceptions — skip these STIG rule IDs (V-XXXXXX format)
+    # Override per-group in group_vars/windows_stig.yml or per-host in host_vars/
+    # Uses same pattern as Linux compliance_skip_rules
+    windows_stig_skip_rules: "{{ compliance_skip_rules | default([]) }}"
+
+    # Run only these rules (empty = all rules). Takes precedence over skip_rules.
+    windows_stig_only_rules: []
+
+    # Categories to execute
+    windows_stig_categories:
+      - account_policies
+      - audit_policies
+      - user_rights
+      - security_options
+      - registry_settings
+      - system_services
+
+    # Reporting
+    windows_stig_report: true
+    windows_stig_report_format: "json"
+    windows_stig_report_path: "C:\\temp\\stig_compliance_report"
+
+    # Fail the playbook if compliance score drops below threshold
+    windows_stig_fail_on_non_compliance: false
+    windows_stig_compliance_threshold: 95
+
+    # Organization name for audit trails
+    windows_stig_organization: "{{ customer_id | default('organization') }}"
+
+    # Service requirements — set true for servers that need these services
+    windows_stig_print_spooler_required: false
+    windows_stig_remote_desktop_required: false
+    windows_stig_iis_required: false
+
+  tasks:
+    - name: Display execution parameters
+      ansible.builtin.debug:
+        msg:
+          - "Target: {{ inventory_hostname }}"
+          - "Mode: {{ 'Drift detection (check mode)' if ansible_check_mode else 'Apply hardening' }}"
+          - "Organization: {{ windows_stig_organization }}"
+          - "Skip rules: {{ windows_stig_skip_rules | default([]) | length }} rule(s)"
+          - "Only rules: {{ windows_stig_only_rules | length }} rule(s) {{ '(all)' if windows_stig_only_rules | length == 0 else '' }}"
+
+    - name: Apply DISA STIG hardening
+      ansible.builtin.include_role:
+        name: infra.windows_ops.windows_manage_stig
+      vars:
+        windows_manage_stig_skip_rules: "{{ windows_stig_skip_rules }}"
+        windows_manage_stig_only_rules: "{{ windows_stig_only_rules }}"
+        windows_manage_stig_categories: "{{ windows_stig_categories }}"
+        windows_manage_stig_generate_report: "{{ windows_stig_report }}"
+        windows_manage_stig_report_format: "{{ windows_stig_report_format }}"
+        windows_manage_stig_report_output_dir: "{{ windows_stig_report_path }}"
+        windows_manage_stig_fail_on_non_compliance: "{{ windows_stig_fail_on_non_compliance }}"
+        windows_manage_stig_compliance_threshold: "{{ windows_stig_compliance_threshold }}"
+        windows_manage_stig_organization: "{{ windows_stig_organization }}"
+        windows_manage_stig_print_spooler_required: "{{ windows_stig_print_spooler_required }}"
+        windows_manage_stig_remote_desktop_required: "{{ windows_stig_remote_desktop_required }}"
+        windows_manage_stig_iis_required: "{{ windows_stig_iis_required }}"

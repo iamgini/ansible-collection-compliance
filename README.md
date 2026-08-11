@@ -21,7 +21,7 @@ A community Ansible collection for automated security compliance scanning and re
 |----------|--------|-------|
 | Linux (RHEL family) | ✅ Supported | RHEL 8, 9, Rocky, AlmaLinux, Fedora |
 | Linux (Debian family) | ✅ Supported | Ubuntu 22.04+, Debian 11+ |
-| Windows | 🚧 TODO | Wrapper playbooks for [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) CIS & STIG (2019/2022/2025) |
+| Windows | ✅ Supported | CIS & STIG via [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) (2019/2022/2025) |
 | Network Devices | 🚧 Planned | Future phase |
 
 ## Architecture
@@ -109,8 +109,8 @@ iamgini.compliance/
 │   ├── oscap_rescan.yml     # Phase 3: Validation scan
 │   ├── commit_reports.yml   # Git commit reports
 │   ├── setup_report_server.yml  # Report server setup
-│   ├── windows_cis.yml      # TODO: Windows CIS using infra.windows_ops
-│   └── windows_stig.yml     # TODO: Windows STIG using infra.windows_ops
+│   ├── windows_cis.yml      # Windows CIS hardening (infra.windows_ops)
+│   └── windows_stig.yml     # Windows STIG hardening (infra.windows_ops)
 ├── inventory/
 │   ├── group_vars/         # Group-level configuration
 │   └── host_vars/          # Host-level exceptions
@@ -385,6 +385,110 @@ Required credentials in AAP:
 - **Machine Credential**: SSH access to managed nodes
 - **SCM Credential**: Git repository access (for commit_reports.yml)
 - **Report Server Credential**: SSH access to report server
+
+## Windows Compliance (CIS & STIG)
+
+Windows compliance uses the [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) validated collection for CIS Benchmark and DISA STIG hardening of Windows Server 2019, 2022, and 2025.
+
+### Prerequisites
+
+```bash
+# Install the collection
+ansible-galaxy collection install infra.windows_ops
+
+# Windows hosts need WinRM configured (HTTPS on port 5986 recommended)
+# See: https://docs.ansible.com/ansible/latest/os_guide/windows_setup.html
+```
+
+### Windows CIS Hardening
+
+```bash
+# Full CIS Level 1 hardening
+ansible-playbook playbooks/windows_cis.yml
+
+# Drift detection only (no changes)
+ansible-playbook playbooks/windows_cis.yml --check
+
+# CIS Level 2 profile
+ansible-playbook playbooks/windows_cis.yml -e "windows_cis_profile='Level 2'"
+
+# Run only password policies
+ansible-playbook playbooks/windows_cis.yml --tags password_policies
+
+# Run a single CIS control
+ansible-playbook playbooks/windows_cis.yml --tags cis_1.1.1
+
+# HTML report
+ansible-playbook playbooks/windows_cis.yml -e "windows_cis_report_format=html"
+```
+
+### Windows STIG Hardening
+
+```bash
+# Full STIG hardening
+ansible-playbook playbooks/windows_stig.yml
+
+# Drift detection only
+ansible-playbook playbooks/windows_stig.yml --check
+
+# CAT I (high severity) controls only
+ansible-playbook playbooks/windows_stig.yml --tags cat_i
+
+# Run a single STIG control
+ansible-playbook playbooks/windows_stig.yml --tags stig_V-254238
+```
+
+### Windows Rule Exceptions
+
+Exceptions use the same `compliance_skip_rules` pattern as Linux. CIS rules use IDs like `"1.1.1"`, STIG rules use `"V-254238"`.
+
+```yaml
+# group_vars/windows_targets.yml — applies to ALL Windows hosts
+compliance_skip_rules:
+  - "5.1"           # CIS: Print Spooler (print servers)
+  - "V-254401"      # STIG: example service exception
+
+compliance_exception_reasons:
+  "5.1":
+    reason: "Print Spooler required for print server role"
+    approved_by: "security-lead@example.com"
+    approved_date: "2026-08-01"
+    review_date: "2027-02-01"
+```
+
+Selective rule execution — run only specific rules:
+
+```bash
+# CIS: only password policy rules
+ansible-playbook playbooks/windows_cis.yml \
+  -e '{"windows_cis_only_rules": ["1.1.1", "1.1.2", "1.1.3", "1.1.4"]}'
+
+# STIG: only specific V-IDs
+ansible-playbook playbooks/windows_stig.yml \
+  -e '{"windows_stig_only_rules": ["V-254238", "V-254239", "V-254240"]}'
+```
+
+### Inventory Setup for Windows
+
+Add Windows targets to `hosts.ini`:
+
+```ini
+[win2022_cis]
+win2022-01 ansible_host=win2022-01.example.com
+
+[win2019_stig]
+win2019-01 ansible_host=win2019-01.example.com
+
+[windows_targets:children]
+win2022_cis
+win2019_stig
+
+[windows_targets:vars]
+ansible_connection=winrm
+ansible_winrm_transport=ntlm
+ansible_winrm_server_cert_validation=ignore
+ansible_port=5986
+```
 
 ## Testing
 
