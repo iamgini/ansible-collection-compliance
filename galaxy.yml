@@ -6,9 +6,9 @@ readme: README.md
 authors:
   - Gineesh Madapparambath
 description: >
-  Community Ansible collection for automated security compliance scanning
-  and remediation using OpenSCAP and ComplianceAsCode. Supports Linux,
-  Windows (future), and network devices (future).
+  Platform-agnostic compliance automation framework. OpenSCAP for Linux
+  (CIS, STIG, PCI-DSS), infra.windows_ops for Windows Server CIS/STIG
+  (2019/2022/2025). Includes exception handling, reporting, and AAP workflows.
 license:
   - Apache-2.0
 tags:

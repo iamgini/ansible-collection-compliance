@@ -42,7 +42,26 @@
       "Bash(mv remediate.yml oscap_remediate.yml)",
       "Bash(mv rescan.yml oscap_rescan.yml)",
       "Bash(mv parse_results oscap_parse)",
-      "Bash(mv generate_fix oscap_generate_fix)"
+      "Bash(mv generate_fix oscap_generate_fix)",
+      "Bash(gcloud --version)",
+      "Bash(gws --version)",
+      "Bash(rpm -q google-cloud-cli)",
+      "Bash(dpkg -l google-cloud-cli)",
+      "Read(//usr/lib64/google-cloud-sdk/bin/**)",
+      "Bash(/usr/lib64/google-cloud-sdk/bin/python3 --version)",
+      "Read(//usr/lib64/google-cloud-sdk/platform/bundledpythonunix/bin/**)",
+      "Bash(python3.13 --version)",
+      "Bash(python3.12 --version)",
+      "Bash(python3.11 --version)",
+      "Read(//home/gmadappa/.config/gws/**)",
+      "Read(//home/gmadappa/**)",
+      "Read(//home/gmadappa/.config/**)",
+      "Bash(pip show *)",
+      "Bash(pipx list *)",
+      "Bash(pip3 show *)",
+      "Bash(pip3.14 show *)",
+      "Bash(rm /home/gmadappa/.local/bin/gws)",
+      "Bash(rm -rf /home/gmadappa/.config/gws)"
     ]
   }
 }
