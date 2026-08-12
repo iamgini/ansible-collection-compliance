@@ -170,12 +170,12 @@ AAP Configuration-as-Code definitions are available in the companion [`ansible-a
 
 ## Related Projects
 
-| Project | Description |
-|---------|-------------|
-| [ComplianceAsCode/content](https://github.com/ComplianceAsCode/content) | Upstream source for SSG datastreams and remediation content |
-| [infra.windows_ops](https://github.com/redhat-cop/infra.windows_ops) | Red Hat CoP validated collection for Windows CIS/STIG |
-| [RedHatOfficial CIS roles](https://github.com/orgs/RedHatOfficial/repositories?q=cis) | Pre-built RHEL CIS roles (alternative to `oscap generate fix`) |
-| [OpenSCAP](https://www.open-scap.org/) | SCAP scanner implementation |
+| Project | Support Level | Description |
+|---------|--------------|-------------|
+| [OpenSCAP](https://www.open-scap.org/) (`openscap-scanner`) | Red Hat supported (RHEL RPM) | SCAP scanner — supported when installed from RHEL repos |
+| [SCAP Security Guide](https://github.com/ComplianceAsCode/content) (`scap-security-guide`) | Red Hat supported (RHEL RPM) | SSG datastreams — supported when installed from RHEL repos; upstream GitHub is community |
+| [infra.windows_ops](https://github.com/redhat-cop/infra.windows_ops) | Red Hat CoP validated | Windows CIS/STIG roles — Red Hat tested, community maintained |
+| [RedHatOfficial CIS roles](https://github.com/orgs/RedHatOfficial/repositories?q=cis) | Community | Auto-generated RHEL CIS roles (alternative to `oscap generate fix`) |
 
 ## License
 
