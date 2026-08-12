@@ -9,7 +9,7 @@ Platform-agnostic compliance automation framework — OpenSCAP for Linux, `infra
 
 | Platform | Framework | Benchmarks |
 |----------|-----------|------------|
-| RHEL 7/8/9/10, Rocky, Alma, Fedora | OpenSCAP + ComplianceAsCode | CIS, STIG, PCI-DSS, HIPAA, OSPP |
+| RHEL 7/8/9/10, Rocky, Alma, Fedora | OpenSCAP + ComplianceAsCode | CIS, STIG (any SSG profile supported) |
 | Windows Server 2019/2022/2025 | [`infra.windows_ops`](https://github.com/redhat-cop/infra.windows_ops) | CIS (L1/L2), DISA STIG |
 
 ## Architecture
