@@ -168,6 +168,14 @@ AAP Configuration-as-Code definitions are available in the companion [`ansible-a
 | `Compliance-Windows-Machine` | Machine (WinRM) | Windows CIS/STIG playbooks |
 | `Compliance-SCM` | Source Control | `commit_reports.yml` |
 
+## Coverage Reports
+
+Gap analysis comparing community roles/tools against official CIS/STIG benchmarks.
+
+| Report | Benchmark | Role/Tool | Coverage |
+|--------|-----------|-----------|----------|
+| [RHEL 9 CIS L1 Server](docs/coverage-reports/CIS-RHEL9-Coverage-Report.md) | CIS RHEL 9 v3.0.0 | `RedHatOfficial.rhel9_cis_server_l1` | ~68% |
+
 ## Related Projects
 
 | Project | Support Level | Description |
