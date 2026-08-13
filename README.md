@@ -174,7 +174,7 @@ Gap analysis comparing community roles/tools against official CIS/STIG benchmark
 
 | Report | Benchmark | Role/Tool | Coverage |
 |--------|-----------|-----------|----------|
-| [RHEL 9 CIS L1 Server](docs/coverage-reports/CIS-RHEL9-Coverage-Report.md) | CIS RHEL 9 v3.0.0 | `RedHatOfficial.rhel9_cis_server_l1` | ~68% |
+| [RHEL 9 CIS L1 Server](coverage-reports/CIS-RHEL9-Coverage-Report.md) | CIS RHEL 9 v3.0.0 | `RedHatOfficial.rhel9_cis_server_l1` | ~68% |
 
 ## Related Projects
 
