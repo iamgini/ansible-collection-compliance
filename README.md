@@ -175,6 +175,7 @@ Gap analysis comparing community roles/tools against official CIS/STIG benchmark
 | Report | Benchmark | Role/Tool | Coverage |
 |--------|-----------|-----------|----------|
 | [RHEL 9 CIS L1 Server](coverage-reports/CIS-RHEL9-Coverage-Report.md) | CIS RHEL 9 v3.0.0 | `RedHatOfficial.rhel9_cis_server_l1` | ~68% |
+| [Singapore IM8](coverage-reports/IM8-Coverage-Report.md) | IM8 ICT&SS (19 controls) | CIS roles + `infra.windows_ops` | 47% direct, 42% partial |
 
 ## Related Projects
 
