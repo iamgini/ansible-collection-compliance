@@ -16,7 +16,29 @@ provided by RedHatOfficial CIS roles (Linux) and `infra.windows_ops` CIS/STIG ro
 | CK — Cryptography | 1 | 1 | 0 | 0 |
 | **Total** | **19** | **9** | **8** | **2** |
 
-**Coverage**: 9/19 directly satisfied (47%), 8/19 partially satisfied (42%), 2/19 not addressed (11%).
+**Combined coverage**: 9/19 directly satisfied (47%), 8/19 partially satisfied (42%), 2/19 not addressed (11%).
+
+### Per-Platform Coverage
+
+| | RHEL (CIS role + OpenSCAP) | Windows (CIS + STIG roles) |
+|---|:-:|:-:|
+| **Directly Satisfied** | 9 / 19 (47%) | 11 / 19 (58%) |
+| **Partially Satisfied** | 7 / 19 (37%) | 4 / 19 (21%) |
+| **Not Addressed** | 3 / 19 (16%) | 4 / 19 (21%) |
+| **Weighted coverage** | **~66%** | **~68%** |
+
+*Weighted: direct = 100%, partial = 50%, not addressed = 0%.*
+
+**Windows** scores higher on direct coverage because the CIS/STIG roles include full audit
+logging (30+ subcategories) and event log sizing — areas where the RHEL role has a major gap
+(zero auditd coverage). This moves LM-4, LM-7, and LM-8 from partial to direct.
+
+**RHEL** picks up partial credit that Windows misses: OpenSCAP satisfies ST-1 (vulnerability
+assessment) and chrony covers IS-10 (time sync) — both gaps on the Windows side.
+
+**Neither platform addresses**: AC-13 (API credential rotation) and ST-5 (vulnerability
+management process). RHEL also misses DP-2 (no LUKS in the role). Windows also misses
+IS-10 (time sync is in a separate `windows_manage_time` role) and ST-1 (no scanning tool).
 
 ## Scope
 
